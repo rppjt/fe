@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/home";
-import LoginKakaoCallback from "./pages/LoginKakaoCallback";
+import LoginKakaoCallback from "./pages/LoginKakkoCallback";
 
 function App() {
   return (
