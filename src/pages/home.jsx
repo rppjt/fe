@@ -1,10 +1,14 @@
-import KakaoLoginButton from "../components/KakaoLoginButton";
+import "../pages/home.css";
+import KakkoLoginButton from "../components/KakkoLoginButton";
 
 const Home = () => {
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold">Runsh</h1>
-      <KakaoLoginButton />
+    <div className="home-container">
+      <img src="/home.jpg" alt="background" className="full-bg" />
+      <div className="overlay">
+        <h1 className="title">Runsh</h1>
+        <KakkoLoginButton />
+      </div>
     </div>
   );
 };
