@@ -1,7 +1,7 @@
-import "../pages/home.css";
+import "../pages/Loginpage.css";
 import KakkoLoginButton from "../components/KakkoLoginButton";
 
-const Home = () => {
+const Loginpage = () => {
   return (
     <div className="home-container">
       <img src="/home.jpg" alt="background" className="full-bg" />
@@ -13,4 +13,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Loginpage;
