@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Loginpage from "./pages/Loginpage";
 import LoginKakaoCallback from "./pages/LoginKakkoCallback";
+import Home from "./pages/home"; // ✅ 새로 만든 Home 페이지 import
 
 function App() {
   return (
@@ -8,8 +9,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Loginpage />} />
         <Route path="/login/kakao" element={<LoginKakaoCallback />} />
-        {/* 로그인 성공 후 리디렉션되는 페이지 추가 가능 */}
-        <Route path="/login" element={<div>로그인 완료!</div>} />
+        <Route path="/home" element={<Home />} /> {/* ✅ 추가된 홈 경로 */}
       </Routes>
     </BrowserRouter>
   );
