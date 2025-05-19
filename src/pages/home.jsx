@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { authFetch } from "../utils/authFetch";
 import LogoutButton from "../components/logoutbutton";
+import MapContainer from "../components/mapContainer";
 
 const Home = () => {
   const [user, setUser] = useState(null);
@@ -27,7 +28,9 @@ const Home = () => {
       <h1>안녕하세요, {user.name}님!</h1>
       <p>level : {user.level}</p>
       <LogoutButton />
+      <MapContainer />
     </div>
+    
   );
 };
 
