@@ -1,32 +1,25 @@
 // src/pages/LoginKakkoCallback.jsx
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const LoginKakkoCallback = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const getToken = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/oauth2/success", {
-          method: "GET",
-          credentials: "include",
-        });
+    const accessToken = searchParams.get("accessToken");
 
-        const data = await response.json();
-        const { accessToken } = data;
+    if (accessToken) {
+      localStorage.setItem("accessToken", accessToken);
 
-        localStorage.setItem("accessToken", accessToken);
+      // 2. URL에서 쿼리스트링 제거
+      window.history.replaceState({}, "", "/login/callback");
 
-        // ✅ 로그인 성공 시 /home으로 이동
-        navigate("/home");
-      } catch (error) {
-        console.error("로그인 실패", error);
-      }
-    };
-
-    getToken();
-  }, [navigate]);
+      navigate("/home"); // ✅ 로그인 성공 시 이동
+    } else {
+      console.error("AccessToken이 존재하지 않습니다.");
+    }
+  }, [navigate, searchParams]);
 
   return <div>로그인 처리 중입니다...</div>;
 };

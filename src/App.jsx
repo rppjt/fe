@@ -8,9 +8,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Loginpage />} />
-        <Route path="/login/kakao" element={<LoginKakaoCallback />} />
+        <Route path="/login/callback" element={<LoginKakaoCallback />} />
         <Route path="/home" element={<Home />} />
-      </Routes>
+      </Routes>ß
     </BrowserRouter>
   );
 }
