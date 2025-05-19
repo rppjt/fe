@@ -10,7 +10,7 @@ const Home = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await authFetch("http://localhost:8080/api/user/me");
+        const res = await authFetch("http://localhost:8080/user");
         const data = await res.json();
         setUser(data);
       } catch (err) {
