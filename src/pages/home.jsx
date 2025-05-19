@@ -1,6 +1,7 @@
-// src/pages/Home.jsx
-import React, { useEffect, useState } from "react";
+// src/pages/home.jsx
+import { useEffect, useState } from "react";
 import { authFetch } from "../utils/authFetch";
+import LogoutButton from "../components/logoutbutton";
 
 const Home = () => {
   const [user, setUser] = useState(null);
@@ -8,13 +9,11 @@ const Home = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await authFetch("http://localhost:8080/api/user/me");
-        if (!response.ok) throw new Error("사용자 정보 가져오기 실패");
-
-        const data = await response.json();
+        const res = await authFetch("http://localhost:8080/api/user/me");
+        const data = await res.json();
         setUser(data);
       } catch (err) {
-        console.error("유저 정보 요청 실패:", err);
+        console.error("사용자 정보 가져오기 실패:", err);
       }
     };
 
@@ -24,12 +23,10 @@ const Home = () => {
   if (!user) return <div>사용자 정보를 불러오는 중...</div>;
 
   return (
-    <div>
+    <div style={{ padding: "2rem" }}>
       <h1>안녕하세요, {user.name}님!</h1>
-      <img src={user.profileImage} alt="프로필" width="80" style={{ borderRadius: "50%" }} />
-      <p>이메일: {user.email}</p>
-      <p>레벨: {user.level}</p>
-      <p>경험치: {user.experiencePoints}</p>
+      <p>level : {user.level}</p>
+      <LogoutButton />
     </div>
   );
 };
