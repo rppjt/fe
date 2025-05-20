@@ -1,0 +1,50 @@
+/* 전체 맵 컨테이너 스타일 */
+.mapWrapper {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+}
+
+/* 실제 카카오맵이 들어가는 div */
+.map {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #ccc;
+}
+
+/* 공통 버튼 스타일 */
+.runButton,
+.stopButton {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* 러닝 시작 버튼 (녹색) */
+.runButton {
+  background-color: #28a745;
+  color: white;
+}
+
+.runButton:hover {
+  background-color: #218838;
+}
+
+/* 러닝 종료 버튼 (빨간색) */
+.stopButton {
+  background-color: #dc3545;
+  color: white;
+}
+
+.stopButton:hover {
+  background-color: #c82333;
+}
