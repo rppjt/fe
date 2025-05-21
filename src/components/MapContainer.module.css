@@ -12,6 +12,21 @@
   border: 1px solid #ccc;
 }
 
+/* 타이머 위치 및 스타일 */
+.timer {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 10;
+  user-select: none;
+}
+
 /* 공통 버튼 스타일 */
 .runButton,
 .stopButton {
@@ -48,3 +63,4 @@
 .stopButton:hover {
   background-color: #c82333;
 }
+
