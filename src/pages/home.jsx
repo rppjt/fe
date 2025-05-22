@@ -1,18 +1,16 @@
 // src/pages/home.jsx
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { authFetch } from "../utils/authFetch";
-import LogoutButton from "./components/LogoutButton";
-import MapContainer from "./components/MapContainer";
+import LogoutButton from "../components/logoutbutton";
+import MapContainer from "../components/mapContainer";
 
 const Home = () => {
   const [user, setUser] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await authFetch("http://localhost:8080/api/user/me");
+        const res = await authFetch("http://localhost:8080/user");
         const data = await res.json();
         setUser(data);
       } catch (err) {
@@ -27,24 +25,12 @@ const Home = () => {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>
-        <span
-          onClick={() => navigate("/my-records")}
-          style={{
-            textDecoration: "underline",
-            cursor: "pointer",
-            color: "#333",
-          }}
-        >
-          {user.name || user.email}
-        </span>{" "}
-        님 환영합니다
-      </h1>
-
+      <h1>안녕하세요, {user.name}님!</h1>
       <p>level : {user.level}</p>
       <LogoutButton />
       <MapContainer />
     </div>
+    
   );
 };
 

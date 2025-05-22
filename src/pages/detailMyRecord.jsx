@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { formatElapsedTime } from "../utils/timeUtils";
 
-const DetailMyRecord = () => {
+const detailMyRecord = () => {
   const { id } = useParams(); // URL에서 기록 ID 추출
   const mapRef = useRef(null);
   const polylineRef = useRef(null);
@@ -86,4 +86,4 @@ const DetailMyRecord = () => {
   );
 };
 
-export default DetailMyRecord;
+export default detailMyRecord;

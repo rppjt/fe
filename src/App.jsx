@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Loginpage from "./pages/Loginpage";
 import LoginKakaoCallback from "./pages/LoginKakkoCallback";
-import Home from "./pages/Home";
-import DetailMyRecord from "./pages/DetailMyRecord";
+import Home from "./pages/home";
+import DetailMyRecord from "./pages/detailMyRecord";
 
 function App() {
   return (
