@@ -1,87 +1,59 @@
 // src/pages/myRecords.jsx
-import { useEffect, useRef, useState } from "react";
-import styles from "./MyRecords.module.css";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import styles from "./myRecords.module.css";
 
 const MyRecords = () => {
   const [records, setRecords] = useState([]);
-  const [selectedRecord, setSelectedRecord] = useState(null);
-  const mapRef = useRef(null);
-  const polylineRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRecords = async () => {
       try {
-        const res = await fetch("http://localhost:8080/running-records/me", {
+        const token = localStorage.getItem("accessToken");
+        const res = await fetch("http://localhost:8080/api/runs/me", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
+
+        if (!res.ok) throw new Error("데이터 로딩 실패");
+
         const data = await res.json();
         setRecords(data);
       } catch (err) {
-        console.error("러닝 기록 불러오기 실패:", err);
+        console.error("❌ 기록 불러오기 오류:", err);
       }
     };
 
     fetchRecords();
   }, []);
 
-  useEffect(() => {
-    if (!selectedRecord || !window.kakao || !window.kakao.maps) return;
-
-    const pathData = JSON.parse(selectedRecord.pathGeoJson);
-
-    const linePath = pathData.coordinates.map(([lng, lat]) => 
-      new window.kakao.maps.LatLng(lat, lng)
-    );
-
-    if (polylineRef.current) {
-      polylineRef.current.setMap(null); // 기존 선 제거
-    }
-
-    polylineRef.current = new window.kakao.maps.Polyline({
-      path: linePath,
-      strokeWeight: 5,
-      strokeColor: "#FF0000",
-      strokeOpacity: 0.8,
-      strokeStyle: "solid",
-    });
-
-    polylineRef.current.setMap(mapRef.current);
-    mapRef.current.setCenter(linePath[0]);
-
-  }, [selectedRecord]);
-
-  useEffect(() => {
-    if (!window.kakao || !window.kakao.maps) return;
-
-    const container = document.getElementById("map");
-    const options = {
-      center: new window.kakao.maps.LatLng(37.5665, 126.9780), // 기본 서울 좌표
-      level: 5,
-    };
-    mapRef.current = new window.kakao.maps.Map(container, options);
-  }, []);
+  const handleClick = (id) => {
+    navigate(`/my-records/${id}`);
+  };
 
   return (
     <div className={styles.container}>
-      <div className={styles.list}>
-        <h2>내 러닝 기록</h2>
-        {records.map((record) => (
-          <div
-            key={record.id}
-            className={styles.recordItem}
-            onClick={() => setSelectedRecord(record)}
-          >
-            🏃 시작: {new Date(record.startedTime).toLocaleString()}<br />
-            ⏱️ 종료: {new Date(record.endedTime).toLocaleString()}
-          </div>
-        ))}
-      </div>
-
-      <div className={styles.mapWrapper}>
-        <div id="map" className={styles.map}></div>
-      </div>
+      <h2>📜 나의 러닝 기록</h2>
+      {records.length === 0 ? (
+        <p>기록이 없습니다.</p>
+      ) : (
+        <ul className={styles.recordList}>
+          {records.map((record) => (
+            <li
+              key={record.id}
+              className={styles.recordItem}
+              onClick={() => handleClick(record.id)}
+            >
+              <p><strong>날짜:</strong> {new Date(record.createdAt).toLocaleDateString()}</p>
+              <p><strong>거리:</strong> {record.distance} km</p>
+              <p><strong>시간:</strong> {Math.floor(record.time / 60)}분 {record.time % 60}초</p>
+              <p><strong>페이스:</strong> {record.pace}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
