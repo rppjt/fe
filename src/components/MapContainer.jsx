@@ -71,7 +71,7 @@ const MapContainer = () => {
 
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await fetch("http://localhost:8080/user", {
+      const response = await fetch("http://localhost:8080/running-record", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
