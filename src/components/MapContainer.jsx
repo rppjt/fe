@@ -5,6 +5,7 @@ import { useRunningTracker } from "../hooks/useRunningTracker";
 import { formatElapsedTime } from "../utils/timeUtils";
 import StartButton from "./buttons/StartButton";
 import StopButton from "./buttons/StopButton";
+import RunSummary from "./summaries/RunSummaries";
 import styles from "./MapContainer.module.css";
 
 const MapContainer = () => {
