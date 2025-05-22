@@ -4,7 +4,7 @@ import LoginKakaoCallback from "./pages/LoginKakkoCallback";
 import Home from "./pages/Home";
 import DetailMyRecord from "./pages/DetailMyRecord";
 
-function App() {
+function App() {  
   return (
     <BrowserRouter>
       <Routes>
