@@ -11,7 +11,7 @@ const MyRecords = () => {
     const fetchRecords = async () => {
       try {
         const token = localStorage.getItem("accessToken");
-        const res = await fetch("http://localhost:8080/api/runs/me", {
+        const res = await fetch("http://localhost:8080//running-record", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
