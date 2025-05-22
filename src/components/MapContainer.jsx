@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useKakaoMap } from "../hooks/useKakaoMap";
 import { useRunningTracker } from "../hooks/useRunningTracker";
 import { formatElapsedTime } from "../utils/timeUtils";
-import StartButton from "./StartButton";
-import StopButton from "./StopButton";
-import RunSummary from "./summaries/RunSummary";
+import StartButton from "./buttons/StartButton";
+import StopButton from "./buttons/StopButton";
 import styles from "./MapContainer.module.css";
 
 const MapContainer = () => {
