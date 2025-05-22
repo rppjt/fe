@@ -9,8 +9,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* 첫 진입 시 home 페이지로 렌더링 */}
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Loginpage />} />
+        <Route path="/" element={<Loginpage />} />
+        <Route path="/login" element={<Home />} />
         <Route path="/login/callback" element={<LoginKakaoCallback />} />
         <Route path="/my-records/:id" element={<DetailMyRecord />} />
       </Routes>
