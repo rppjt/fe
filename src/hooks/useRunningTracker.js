@@ -1,30 +1,29 @@
 // src/hooks/useRunningTracker.js
-import { useRef, useState, useEffect } from "react";
+
+import { useRef, useState } from "react";
 import { getDistanceFromLatLonInMeters, convertPathToGeoJSON } from "../utils/geoUtils";
 
 export const useRunningTracker = (mapRef, markerRef) => {
   const [isRunning, setIsRunning] = useState(false);
   const [path, setPath] = useState([]);
-  const [elapsedTime, setElapsedTime] = useState(0); // ⏱️ 경과 시간 상태 추가
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   const watchIdRef = useRef(null);
   const prevPositionRef = useRef(null);
   const startedTimeRef = useRef(null);
-  const timerRef = useRef(null); // ⏱️ 타이머 참조 저장용
+  const timerRef = useRef(null);
 
   const startRunning = () => {
     setIsRunning(true);
     setPath([]);
     prevPositionRef.current = null;
     startedTimeRef.current = new Date().toISOString();
-    setElapsedTime(0); // 시작 시 초기화
+    setElapsedTime(0);
 
-    // ⏱️ 1초마다 경과 시간 증가
     timerRef.current = setInterval(() => {
       setElapsedTime((prev) => prev + 1);
     }, 1000);
 
-    // 위치 추적 시작
     watchIdRef.current = navigator.geolocation.watchPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
@@ -54,13 +53,12 @@ export const useRunningTracker = (mapRef, markerRef) => {
     );
   };
 
-  const stopRunning = async () => {
+  const stopRunning = () => {
     if (watchIdRef.current) {
       navigator.geolocation.clearWatch(watchIdRef.current);
     }
-
     if (timerRef.current) {
-      clearInterval(timerRef.current); // ⏱️ 타이머 종료
+      clearInterval(timerRef.current);
     }
 
     setIsRunning(false);
@@ -68,47 +66,28 @@ export const useRunningTracker = (mapRef, markerRef) => {
 
     if (path.length < 2) {
       alert("기록된 경로가 너무 짧아 저장되지 않았습니다.");
-      return;
+      return null;
     }
 
     const start = path[0];
     const end = path[path.length - 1];
     const pathGeoJson = JSON.stringify(convertPathToGeoJSON(path));
 
-    const requestBody = {
-      pathGeoJson,
-      startLatitude: start.lat,
-      startLongitude: start.lng,
-      endLatitude: end.lat,
-      endLongitude: end.lng,
+    setElapsedTime(0); // ⏱️ 경과 시간 초기화
+
+    return {
+      start,
+      end,
       startedTime: startedTimeRef.current,
       endedTime,
+      pathGeoJson,
     };
-
-    try {
-      const response = await fetch("http://localhost:8080/running-record", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) throw new Error("서버 응답 오류");
-      alert("✅ 러닝 기록이 저장되었습니다!");
-    } catch (err) {
-      console.error("러닝 기록 저장 실패:", err);
-      alert("기록 저장 중 오류 발생");
-    }
-
-    setElapsedTime(0); // ⏱️ 타이머 초기화
   };
 
   return {
     isRunning,
     path,
-    elapsedTime, // ⏱️ 외부에서 경과 시간 표시 가능하게 반환
+    elapsedTime,
     startRunning,
     stopRunning,
   };

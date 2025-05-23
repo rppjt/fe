@@ -25,3 +25,22 @@ export function convertPathToGeoJSON(path) {
     coordinates: path.map((p) => [p.lng, p.lat]),
   };
 }
+
+export function calculateDistanceFromPath(path) {
+  if (path.length < 2) return 0;
+  const toRad = (value) => (value * Math.PI) / 180;
+  let total = 0;
+  for (let i = 1; i < path.length; i++) {
+    const [lat1, lng1] = path[i - 1];
+    const [lat2, lng2] = path[i];
+    const R = 6371;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    total += R * c;
+  }
+  return total;
+}
