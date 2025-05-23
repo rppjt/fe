@@ -3,6 +3,7 @@ import Loginpage from "./pages/Loginpage";
 import LoginKakaoCallback from "./pages/LoginKakkoCallback";
 import Home from "./pages/Home";
 import DetailMyRecord from "./pages/DetailMyRecord";
+import CourseDetail from "./pages/CourseDetail";
 
 function App() {  
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/login/callback" element={<LoginKakaoCallback />} />
         <Route path="/my-records/:id" element={<DetailMyRecord />} />
+        <Route path="/courses/:id" element={<CourseDetail />} />
       </Routes>
     </BrowserRouter>
   );

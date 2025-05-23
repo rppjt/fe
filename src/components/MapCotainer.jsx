@@ -2,7 +2,8 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useKakaoMap } from "../hooks/useKakaoMap";
 import { useRunningTracker } from "../hooks/useRunningTracker";
-import { formatElapsedTime } from "../utils/timeUtils";
+import { formatElapsedTime, formatPace } from "../utils/timeUtils";
+import { calculateDistanceFromPath } from "../utils/geoUtils";
 import StartButton from "./buttons/StartButton";
 import StopButton from "./buttons/StopButton";
 import RunSummary from "./summaries/RunSummaries";
@@ -12,61 +13,49 @@ const MapContainer = () => {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
-
   const navigate = useNavigate();
 
   useKakaoMap({ mapRef, markerRef, containerRef });
-  const { isRunning, path, startRunning, stopRunning, elapsedTime } =
-    useRunningTracker(mapRef, markerRef);
+
+  const {
+    isRunning,
+    path,
+    startRunning,
+    stopRunning,
+    elapsedTime,
+  } = useRunningTracker(mapRef, markerRef);
 
   const [showSummary, setShowSummary] = useState(false);
   const [distance, setDistance] = useState(0);
   const [averagePace, setAveragePace] = useState("");
-
-  const calculateDistance = (path) => {
-    if (path.length < 2) return 0;
-    const toRad = (value) => (value * Math.PI) / 180;
-    let total = 0;
-    for (let i = 1; i < path.length; i++) {
-      const [lat1, lng1] = path[i - 1];
-      const [lat2, lng2] = path[i];
-      const R = 6371;
-      const dLat = toRad(lat2 - lat1);
-      const dLng = toRad(lng2 - lng1);
-      const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos(toRad(lat1)) *
-          Math.cos(toRad(lat2)) *
-          Math.sin(dLng / 2) ** 2;
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      total += R * c;
-    }
-    return total;
-  };
-
-  const calculateAveragePace = (timeSec, distanceKm) => {
-    if (distanceKm === 0) return "0'00\"";
-    const paceSec = timeSec / distanceKm;
-    const min = Math.floor(paceSec / 60);
-    const sec = Math.floor(paceSec % 60);
-    return `${min}'${sec.toString().padStart(2, "0")}"`;
-  };
+  const [metaData, setMetaData] = useState(null);
 
   const handleStop = () => {
-    stopRunning();
-    const dist = calculateDistance(path);
-    const pace = calculateAveragePace(elapsedTime, dist);
+    const result = stopRunning();
+    if (!result) return;
+
+    const dist = calculateDistanceFromPath(path);
+    const pace = formatPace(elapsedTime, dist);
     setDistance(dist);
     setAveragePace(pace);
+    setMetaData(result);
     setShowSummary(true);
   };
 
   const handleSave = async () => {
+    if (!metaData) return;
+
     const recordData = {
       distance: distance.toFixed(2),
       time: elapsedTime,
       pace: averagePace,
-      path: path,
+      pathGeoJson: metaData.pathGeoJson,
+      startedTime: metaData.startedTime,
+      endedTime: metaData.endedTime,
+      startLatitude: metaData.start.lat,
+      startLongitude: metaData.start.lng,
+      endLatitude: metaData.end.lat,
+      endLongitude: metaData.end.lng,
     };
 
     try {
