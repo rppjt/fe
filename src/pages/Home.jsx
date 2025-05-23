@@ -8,13 +8,13 @@ import styles from "./Home.module.css";
 
 const Home = () => {
   const [user, setUser] = useState(null);
-  const [recommendations, setRecommendations] = useState([]);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
+  const [allCourses, setAllCourses] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [showRecoveryPrompt, setShowRecoveryPrompt] = useState(false);
 
   const navigate = useNavigate();
 
-  // ✅ 사용자 정보
+  // ✅ 사용자 정보 가져오기
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -25,11 +25,10 @@ const Home = () => {
         console.error("사용자 정보 가져오기 실패:", err);
       }
     };
-
     fetchUser();
   }, []);
 
-  // ✅ 추천 경로
+  // ✅ 추천 경로 가져오기
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
@@ -39,32 +38,50 @@ const Home = () => {
         const { latitude, longitude } = pos.coords;
 
         const res = await fetch(
-          `http://localhost:8080/recommendations?lat=${latitude}&lng=${longitude}&page=${page}&size=3`
+          `http://localhost:8080/recommendations?lat=${latitude}&lng=${longitude}`
         );
-        if (!res.ok) throw new Error("추천 코스 불러오기 실패");
         const data = await res.json();
-
-        if (data.length === 0) {
-          setHasMore(false);
-        } else {
-          setRecommendations((prev) => [...prev, ...data]);
-        }
+        setAllCourses(data);
       } catch (err) {
-        console.error("❌ 추천 코스 오류:", err);
-        alert("추천 코스를 불러오는 중 오류 발생");
+        console.error("추천 코스 불러오기 실패:", err);
       }
     };
-
     fetchRecommendations();
-  }, [page]);
+  }, []);
+
+  // ✅ 복구 알림 감지
+  useEffect(() => {
+    if (localStorage.getItem("unsavedRun")) {
+      setShowRecoveryPrompt(true);
+    }
+  }, []);
+
+  const handleRecover = () => {
+    navigate("/recover");
+  };
+
+  const handleIgnore = () => {
+    localStorage.removeItem("unsavedRun");
+    setShowRecoveryPrompt(false);
+  };
 
   const handleNext = () => {
-    if (hasMore) setPage((prev) => prev + 1);
+    if (currentIndex + 3 < allCourses.length) {
+      setCurrentIndex((prev) => prev + 3);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex - 3 >= 0) {
+      setCurrentIndex((prev) => prev - 3);
+    }
   };
 
   const handleClickCourse = (id) => {
-    navigate(`/courses/${id}`);
+    navigate(`/course/${id}`);
   };
+
+  const visibleCourses = allCourses.slice(currentIndex, currentIndex + 3);
 
   if (!user) return <div>사용자 정보를 불러오는 중...</div>;
 
@@ -86,30 +103,47 @@ const Home = () => {
 
       <p>level : {user.level}</p>
       <LogoutButton />
-
-      {/* ✅ 지도 */}
       <MapContainer />
 
-      {/* ✅ 추천 경로 섹션 */}
+      {/* 🔔 복구 알림 */}
+      {showRecoveryPrompt && (
+        <div className={styles.recoveryBox}>
+          <p>💾 저장되지 않은 기록이 있습니다. 복구하시겠습니까?</p>
+          <button onClick={handleRecover}>✅ 복구</button>
+          <button onClick={handleIgnore}>❌ 무시</button>
+        </div>
+      )}
+
+      {/* 📌 추천 경로 슬라이드 */}
       <div className={styles.recommendBox}>
         <h2>📌 추천 경로</h2>
         <div className={styles.recommendList}>
-          {recommendations.map((course) => (
+          {currentIndex > 0 && (
+            <button className={styles.navButton} onClick={handlePrev}>
+              ⬅️
+            </button>
+          )}
+
+          {visibleCourses.map((course) => (
             <div
               key={course.id}
               className={styles.courseItem}
               onClick={() => handleClickCourse(course.id)}
             >
               <img
-                src="/course-default-thumbnail.jpg" // 임시 썸네일
+                src="/course-default-thumbnail.jpg"
                 alt={course.title}
                 className={styles.thumbnail}
               />
-              <p>{course.title}</p>
+              <div className={styles.courseInfo}>
+                <p className={styles.title}>{course.title}</p>
+                <p className={styles.likes}>❤️ {course.likes}</p>
+              </div>
             </div>
           ))}
-          {hasMore && (
-            <button onClick={handleNext} className={styles.nextButton}>
+
+          {currentIndex + 3 < allCourses.length && (
+            <button className={styles.navButton} onClick={handleNext}>
               ➡️
             </button>
           )}
@@ -120,3 +154,4 @@ const Home = () => {
 };
 
 export default Home;
+  

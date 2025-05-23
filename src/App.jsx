@@ -15,6 +15,7 @@ function App() {
         <Route path="/login/callback" element={<LoginKakaoCallback />} />
         <Route path="/my-records/:id" element={<DetailMyRecord />} />
         <Route path="/courses/:id" element={<CourseDetail />} />
+        <Route path="/recover" element={<RecoverPage />} />
       </Routes>
     </BrowserRouter>
   );

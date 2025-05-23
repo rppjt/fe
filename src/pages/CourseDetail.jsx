@@ -13,7 +13,7 @@ const CourseDetail = () => {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/courses/${id}`);
+        const res = await fetch(`http://localhost:8080/course/${id}`);
         const data = await res.json();
         setCourse(data);
         setLikes(data.likes);
@@ -49,7 +49,7 @@ const CourseDetail = () => {
 
   const handleLikeToggle = async () => {
     try {
-      const res = await fetch(`http://localhost:8080/courses/like/${id}`, {
+      const res = await fetch(`http://localhost:8080/course/like/${id}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
