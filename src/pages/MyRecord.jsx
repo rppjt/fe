@@ -1,4 +1,4 @@
-// src/pages/myRecords.jsx
+// src/pages/MyRecords.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./MyRecords.module.css";
@@ -33,51 +33,44 @@ const MyRecords = () => {
     navigate(`/my-records/${id}`);
   };
 
-  const toggleRecommend = async (record) => {
+  const toggleFavorite = async (record) => {
     const token = localStorage.getItem("accessToken");
-    const isRecommended = record.recommendedCourseId !== null;
+    const isFavorite = record.favorite === true;
 
     try {
-      if (isRecommended) {
-        // ⭐ 해제 요청 (추천 취소)
-        await fetch(`http://localhost:8080/course/${record.recommendedCourseId}`, {
+      if (isFavorite) {
+        // 즐겨찾기 해제
+        await fetch(`http://localhost:8080/favorite/${record.id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        alert("🔙 추천 코스에서 삭제되었습니다");
+        alert("⭐ 즐겨찾기에서 삭제되었습니다");
         setRecords((prev) =>
           prev.map((r) =>
-            r.id === record.id ? { ...r, recommendedCourseId: null } : r
+            r.id === record.id ? { ...r, favorite: false } : r
           )
         );
       } else {
-        // ⭐ 등록 요청
-        const res = await fetch("http://localhost:8080/course", {
+        // 즐겨찾기 추가
+        await fetch(`http://localhost:8080/favorite`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            title: `기록 ${new Date(record.createdAt).toLocaleString()}`,
-            distance: record.distance,
-            pathGeoJson: JSON.parse(record.pathGeoJson),
-          }),
+          body: JSON.stringify({ recordId: record.id }),
         });
-
-        if (!res.ok) throw new Error("추천 등록 실패");
-        const data = await res.json();
-        alert("✅ 추천 코스로 등록되었습니다");
+        alert("⭐ 즐겨찾기에 추가되었습니다");
         setRecords((prev) =>
           prev.map((r) =>
-            r.id === record.id ? { ...r, recommendedCourseId: data.id } : r
+            r.id === record.id ? { ...r, favorite: true } : r
           )
         );
       }
     } catch (err) {
-      console.error("추천 토글 오류:", err);
+      console.error("즐겨찾기 토글 오류:", err);
     }
   };
 
@@ -111,12 +104,12 @@ const MyRecords = () => {
               <span
                 onClick={(e) => {
                   e.stopPropagation(); // 기록 상세 이동 막기
-                  toggleRecommend(record);
+                  toggleFavorite(record);
                 }}
                 style={{
                   cursor: "pointer",
                   fontSize: "20px",
-                  color: record.recommendedCourseId ? "gold" : "#ccc",
+                  color: record.favorite ? "gold" : "#ccc",
                 }}
               >
                 ⭐
@@ -130,4 +123,3 @@ const MyRecords = () => {
 };
 
 export default MyRecords;
-//       <div className={styles.courseTitle}>{course.title}</div>

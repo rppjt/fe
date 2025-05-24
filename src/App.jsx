@@ -4,6 +4,7 @@ import LoginKakaoCallback from "./pages/LoginKakkoCallback";
 import Home from "./pages/Home";
 import DetailMyRecord from "./pages/DetailMyRecord";
 import CourseDetail from "./pages/CourseDetail";
+import MyPage from "./pages/MyPage";
 
 function App() {  
   return (
@@ -12,10 +13,12 @@ function App() {
         {/* 첫 진입 시 home 페이지로 렌더링 */}
         <Route path="/" element={<Loginpage />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/mypage" element={<MyPage />} />
         <Route path="/login/callback" element={<LoginKakaoCallback />} />
         <Route path="/my-records/:id" element={<DetailMyRecord />} />
         <Route path="/courses/:id" element={<CourseDetail />} />
         <Route path="/recover" element={<RecoverPage />} />
+    
       </Routes>
     </BrowserRouter>
   );
