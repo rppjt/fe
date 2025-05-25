@@ -1,4 +1,4 @@
-// src/pages/myRecords.jsx
+// src/pages/MyRecords.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./MyRecords.module.css";
@@ -29,32 +29,75 @@ const MyRecords = () => {
     fetchRecords();
   }, []);
 
-  const toggleFavorite = async (recordId) => {
+  const handleClick = (id) => {
+    navigate(`/my-records/${id}`);
+  };
+
+  const toggleFavorite = async (record) => {
+    const token = localStorage.getItem("accessToken");
+    const isFavorite = record.favorite === true;
+
     try {
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(`http://localhost:8080/courses/like/${recordId}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) throw new Error("추천 토글 실패");
-
-      // 응답 받은 좋아요 수 or 상태 반영
-      const updated = await res.json();
-      setRecords((prev) =>
-        prev.map((r) =>
-          r.id === recordId ? { ...r, liked: !r.liked, likes: updated.likes } : r
-        )
-      );
+      if (isFavorite) {
+        await fetch(`http://localhost:8080/favorite/${record.id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        alert("⭐ 즐겨찾기에서 삭제됨");
+        setRecords((prev) =>
+          prev.map((r) => (r.id === record.id ? { ...r, favorite: false } : r))
+        );
+      } else {
+        await fetch(`http://localhost:8080/favorite`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ recordId: record.id }),
+        });
+        alert("⭐ 즐겨찾기에 추가됨");
+        setRecords((prev) =>
+          prev.map((r) => (r.id === record.id ? { ...r, favorite: true } : r))
+        );
+      }
     } catch (err) {
-      console.error("⭐ 추천 토글 실패:", err);
+      console.error("즐겨찾기 토글 오류:", err);
     }
   };
 
-  const handleClick = (id) => {
-    navigate(`/my-records/${id}`);
+  const handleDelete = async (recordId) => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      await fetch(`http://localhost:8080/running-record/${recordId}/delete`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setRecords((prev) =>
+        prev.map((r) =>
+          r.id === recordId ? { ...r, isDeleted: true } : r
+        )
+      );
+    } catch (err) {
+      console.error("❌ 삭제 실패:", err);
+    }
+  };
+
+  const handleRestore = async (recordId) => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      await fetch(`http://localhost:8080/running-record/${recordId}/restore`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setRecords((prev) =>
+        prev.map((r) =>
+          r.id === recordId ? { ...r, isDeleted: false } : r
+        )
+      );
+    } catch (err) {
+      console.error("❌ 복구 실패:", err);
+    }
   };
 
   return (
@@ -65,19 +108,50 @@ const MyRecords = () => {
       ) : (
         <ul className={styles.recordList}>
           {records.map((record) => (
-            <li key={record.id} className={styles.recordItem}>
-              <div onClick={() => handleClick(record.id)}>
-                <p><strong>날짜:</strong> {new Date(record.createdAt).toLocaleDateString()}</p>
-                <p><strong>거리:</strong> {record.distance} km</p>
-                <p><strong>시간:</strong> {Math.floor(record.time / 60)}분 {record.time % 60}초</p>
-                <p><strong>페이스:</strong> {record.pace}</p>
+            <li
+              key={record.id}
+              className={styles.recordItem}
+              onClick={() => !record.isDeleted && handleClick(record.id)}
+              style={{
+                opacity: record.isDeleted ? 0.5 : 1,
+                pointerEvents: record.isDeleted ? "none" : "auto",
+              }}
+            >
+              <p><strong>날짜:</strong> {new Date(record.createdAt).toLocaleDateString()}</p>
+              <p><strong>거리:</strong> {record.distance} km</p>
+              <p><strong>시간:</strong> {Math.floor(record.time / 60)}분 {record.time % 60}초</p>
+              <p><strong>페이스:</strong> {record.pace}</p>
+
+              <div className={styles.actions}>
+                {record.isDeleted ? (
+                  <button onClick={() => handleRestore(record.id)}>♻️ 복구</button>
+                ) : (
+                  <>
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(record);
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        fontSize: "20px",
+                        color: record.favorite ? "gold" : "#ccc",
+                      }}
+                    >
+                      ⭐
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(record.id);
+                      }}
+                      className={styles.deleteButton}
+                    >
+                      🗑️ 삭제
+                    </button>
+                  </>
+                )}
               </div>
-              <button
-                className={styles.starButton}
-                onClick={() => toggleFavorite(record.id)}
-              >
-                {record.liked ? "⭐" : "☆"}
-              </button>
             </li>
           ))}
         </ul>
