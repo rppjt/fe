@@ -7,21 +7,41 @@ const LoginKakkoCallback = () => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const accessToken = searchParams.get("accessToken");
+    const code = searchParams.get("code");
 
-    if (accessToken) {
-      localStorage.setItem("accessToken", accessToken);
-
-      // 2. URL에서 쿼리스트링 제거
-      window.history.replaceState({}, "", "/login/callback");
-
-      navigate("/home"); // ✅ 로그인 성공 시 이동
-    } else {
-      console.error("AccessToken이 존재하지 않습니다.");
+    if (!code) {
+      console.error("❌ code 파라미터가 없습니다.");
+      return;
     }
+
+    const exchangeToken = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/login/kakao/callback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        });
+
+        if (!res.ok) throw new Error("⚠️ 토큰 요청 실패");
+
+        const data = await res.json();
+        const accessToken = data.accessToken;
+
+        if (accessToken) {
+          localStorage.setItem("accessToken", accessToken);
+          navigate("/home");
+        } else {
+          console.error("❌ accessToken이 응답에 없습니다.");
+        }
+      } catch (err) {
+        console.error("❌ 로그인 처리 중 오류:", err);
+      }
+    };
+
+    exchangeToken();
   }, [navigate, searchParams]);
 
-  return <div>로그인 처리 중입니다...</div>;
+  return <div>🔐 로그인 처리 중입니다...</div>;
 };
 
 export default LoginKakkoCallback;

@@ -1,4 +1,3 @@
-// src/pages/home.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authFetch } from "../utils/authFetch";
@@ -9,9 +8,7 @@ import styles from "./Home.module.css";
 const Home = () => {
   const [user, setUser] = useState(null);
   const [allCourses, setAllCourses] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [showRecoveryPrompt, setShowRecoveryPrompt] = useState(false);
-
   const navigate = useNavigate();
 
   // ✅ 사용자 정보 가져오기
@@ -28,7 +25,7 @@ const Home = () => {
     fetchUser();
   }, []);
 
-  // ✅ 추천 경로 가져오기
+  // ✅ 추천 코스 중 좋아요 상위 → 랜덤 3개 표시
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
@@ -41,7 +38,12 @@ const Home = () => {
           `http://localhost:8080/recommendations?lat=${latitude}&lng=${longitude}`
         );
         const data = await res.json();
-        setAllCourses(data);
+
+        // 좋아요 순 정렬 후 상위 10개 중 랜덤 3개 선택
+        const topLiked = data.sort((a, b) => b.likes - a.likes).slice(0, 10);
+        const shuffled = topLiked.sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 3);
+        setAllCourses(selected);
       } catch (err) {
         console.error("추천 코스 불러오기 실패:", err);
       }
@@ -49,7 +51,7 @@ const Home = () => {
     fetchRecommendations();
   }, []);
 
-  // ✅ 복구 알림 감지
+  // ✅ 복구 기록 감지
   useEffect(() => {
     if (localStorage.getItem("unsavedRun")) {
       setShowRecoveryPrompt(true);
@@ -65,23 +67,9 @@ const Home = () => {
     setShowRecoveryPrompt(false);
   };
 
-  const handleNext = () => {
-    if (currentIndex + 3 < allCourses.length) {
-      setCurrentIndex((prev) => prev + 3);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentIndex - 3 >= 0) {
-      setCurrentIndex((prev) => prev - 3);
-    }
-  };
-
   const handleClickCourse = (id) => {
     navigate(`/course/${id}`);
   };
-
-  const visibleCourses = allCourses.slice(currentIndex, currentIndex + 3);
 
   if (!user) return <div>사용자 정보를 불러오는 중...</div>;
 
@@ -89,7 +77,7 @@ const Home = () => {
     <div className={styles.container}>
       <h1>
         <span
-          onClick={() => navigate("/my-records")}
+          onClick={() => navigate("/mypage")}
           style={{
             textDecoration: "underline",
             cursor: "pointer",
@@ -114,17 +102,12 @@ const Home = () => {
         </div>
       )}
 
-      {/* 📌 추천 경로 슬라이드 */}
+      {/* 📌 추천 경로 영역 */}
       <div className={styles.recommendBox}>
         <h2>📌 추천 경로</h2>
-        <div className={styles.recommendList}>
-          {currentIndex > 0 && (
-            <button className={styles.navButton} onClick={handlePrev}>
-              ⬅️
-            </button>
-          )}
 
-          {visibleCourses.map((course) => (
+        <div className={styles.recommendList}>
+          {allCourses.map((course) => (
             <div
               key={course.id}
               className={styles.courseItem}
@@ -141,12 +124,16 @@ const Home = () => {
               </div>
             </div>
           ))}
+        </div>
 
-          {currentIndex + 3 < allCourses.length && (
-            <button className={styles.navButton} onClick={handleNext}>
-              ➡️
-            </button>
-          )}
+        {/* ➕ 더보기 버튼 */}
+        <div style={{ textAlign: "right", marginTop: "0.5rem" }}>
+          <button
+            onClick={() => navigate("/courses")}
+            className={styles.moreButton}
+          >
+            ➕ 더보기
+          </button>
         </div>
       </div>
     </div>
@@ -154,4 +141,3 @@ const Home = () => {
 };
 
 export default Home;
-  

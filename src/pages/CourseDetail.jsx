@@ -1,6 +1,5 @@
-// src/pages/CourseDetail.jsx
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import styles from "./CourseDetail.module.css";
 
 const CourseDetail = () => {
@@ -9,6 +8,7 @@ const CourseDetail = () => {
   const [likes, setLikes] = useState(0);
   const mapRef = useRef(null);
   const polylineRef = useRef(null);
+  const navigate = useNavigate(); // ✅ 추가
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -47,6 +47,7 @@ const CourseDetail = () => {
     fetchCourse();
   }, [id]);
 
+  // ❤️ 좋아요 토글
   const handleLikeToggle = async () => {
     try {
       const res = await fetch(`http://localhost:8080/course/like/${id}`, {
@@ -62,6 +63,11 @@ const CourseDetail = () => {
     }
   };
 
+  // 🧭 따라가기 버튼
+  const handleFollow = () => {
+    navigate(`/run?courseId=${id}`);
+  };
+
   if (!course) return <div>로딩 중...</div>;
 
   return (
@@ -70,7 +76,10 @@ const CourseDetail = () => {
       <p>📏 거리: {course.distance} km</p>
       <p>❤️ 좋아요: {likes}</p>
       <button onClick={handleLikeToggle} className={styles.likeButton}>
-        좋아요 토글
+        ❤️ 좋아요 토글
+      </button>
+      <button onClick={handleFollow} className={styles.followButton}>
+        🧭 따라가기
       </button>
       <div ref={mapRef} className={styles.map}></div>
     </div>

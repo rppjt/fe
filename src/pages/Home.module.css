@@ -53,5 +53,17 @@
   margin-top: 0.25rem;
 }
 
+.moreButton {
+  background-color: #facc15;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.moreButton:hover {
+  background-color: #eab308;
+}
+
 
 

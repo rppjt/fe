@@ -20,3 +20,18 @@
   font-weight: bold;
   cursor: pointer;
 }
+
+.followButton {
+  margin-top: 0.5rem;
+  background-color: #38bdf8;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.followButton:hover {
+  background-color: #0ea5e9;
+}
