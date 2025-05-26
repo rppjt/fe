@@ -1,4 +1,3 @@
-// src/pages/Courses.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./courses.module.css";
@@ -27,7 +26,32 @@ const Courses = () => {
     navigate(`/course/${id}`);
   };
 
-  // ✅ 필터링 + 정렬 처리
+  const toggleBookmark = async (courseId, isBookmarked) => {
+    const token = localStorage.getItem("accessToken");
+
+    try {
+      const res = await fetch(
+        `http://localhost:8080/course/bookmark/${courseId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("즐겨찾기 요청 실패");
+
+      setCourses((prev) =>
+        prev.map((c) =>
+          c.id === courseId ? { ...c, bookmarked: !isBookmarked } : c
+        )
+      );
+    } catch (err) {
+      console.error("즐겨찾기 실패:", err);
+    }
+  };
+
   const filteredCourses = courses
     .filter((course) =>
       (course.title + (course.description || "")).toLowerCase().includes(searchQuery.toLowerCase())
@@ -84,6 +108,16 @@ const Courses = () => {
                 <p className={styles.description}>
                   {course.description || "설명이 없습니다."}
                 </p>
+
+                {/* ✅ 즐겨찾기 버튼 */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // 상위 li 클릭 방지
+                    toggleBookmark(course.id, course.bookmarked);
+                  }}
+                >
+                  {course.bookmarked ? "⭐ 즐겨찾기 해제" : "☆ 즐겨찾기 추가"}
+                </button>
               </div>
             </li>
           ))}

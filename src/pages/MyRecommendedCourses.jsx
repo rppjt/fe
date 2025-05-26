@@ -6,9 +6,10 @@ import styles from "./MyPage.module.css";
 
 const MyRecommendedCourses = () => {
   const [courses, setCourses] = useState([]);
-  const [editId, setEditId] = useState(null); // 수정 중인 코스 ID
+  const [editId, setEditId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const [editThumbnail, setEditThumbnail] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,12 +52,14 @@ const MyRecommendedCourses = () => {
     setEditId(course.id);
     setEditTitle(course.title);
     setEditDescription(course.description || "");
+    setEditThumbnail(course.thumbnailUrl || "");
   };
 
   const handleEditCancel = () => {
     setEditId(null);
     setEditTitle("");
     setEditDescription("");
+    setEditThumbnail("");
   };
 
   const handleEditSubmit = async () => {
@@ -72,6 +75,7 @@ const MyRecommendedCourses = () => {
         body: JSON.stringify({
           title: editTitle,
           description: editDescription,
+          thumbnailUrl: editThumbnail,
         }),
       });
 
@@ -102,29 +106,40 @@ const MyRecommendedCourses = () => {
               onClick={() => handleClick(course.id)}
             >
               {editId === course.id ? (
-                <div>
+                <div className={styles.editForm}>
                   <input
                     type="text"
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
                     placeholder="코스 제목"
                   />
-                  <br />
                   <textarea
                     rows="2"
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
                     placeholder="코스 설명"
                   />
-                  <br />
-                  <button onClick={handleEditSubmit}>💾 저장</button>
-                  <button onClick={handleEditCancel}>❌ 취소</button>
+                  <input
+                    type="text"
+                    value={editThumbnail}
+                    onChange={(e) => setEditThumbnail(e.target.value)}
+                    placeholder="썸네일 URL"
+                  />
+                  <div className={styles.editActions}>
+                    <button onClick={handleEditSubmit}>💾 저장</button>
+                    <button onClick={handleEditCancel}>❌ 취소</button>
+                  </div>
                 </div>
               ) : (
                 <>
                   <p className={styles.courseTitle}>{course.title}</p>
                   <p>{course.distance} km | ❤️ {course.likes}</p>
                   <p>{course.description || "설명이 없습니다."}</p>
+                  <img
+                    src={course.thumbnailUrl || "/course-default-thumbnail.jpg"}
+                    alt={course.title}
+                    className={styles.thumbnail}
+                  />
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
