@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./courses.module.css";
+import styles from "./course.module.css";
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
