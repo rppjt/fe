@@ -11,6 +11,7 @@ const LoginKakkoCallback = () => {
 
     if (!code) {
       console.error("❌ code 파라미터가 없습니다.");
+      navigate("/");
       return;
     }
 
@@ -22,19 +23,23 @@ const LoginKakkoCallback = () => {
           body: JSON.stringify({ code }),
         });
 
-        if (!res.ok) throw new Error("⚠️ 토큰 요청 실패");
+        if (!res.ok) {
+          throw new Error("⚠️ 토큰 요청 실패");
+        }
 
         const data = await res.json();
         const accessToken = data.accessToken;
 
         if (accessToken) {
-          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("accessToken", accessToken); // ✅ 직접 저장
           navigate("/home");
         } else {
           console.error("❌ accessToken이 응답에 없습니다.");
+          navigate("/");
         }
       } catch (err) {
         console.error("❌ 로그인 처리 중 오류:", err);
+        navigate("/");
       }
     };
 
