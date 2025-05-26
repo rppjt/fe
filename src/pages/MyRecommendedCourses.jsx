@@ -1,7 +1,8 @@
 // src/pages/MyRecommendedCourses.jsx
+  const authFetch = useAuthFetch();
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authFetch } from "../utils/authFetch";
+import { useAuthFetch } from "../utils/useAuthFetch";
 import styles from "./MyPage.module.css";
 
 const MyRecommendedCourses = () => {

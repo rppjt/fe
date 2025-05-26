@@ -1,6 +1,7 @@
+  const authFetch = useAuthFetch();
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authFetch } from "../utils/authFetch";
+import { useAuthFetch } from "../utils/useAuthFetch";
 import LogoutButton from "../components/LogoutButton";
 import MapContainer from "../components/MapContainer";
 import styles from "./Home.module.css";
