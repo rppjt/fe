@@ -1,6 +1,6 @@
 // src/pages/MyPage.jsx
 import { useState } from "react";
-import MyRecords from "./MyRecords";
+import MyRecords from "./MyRecord";
 import MyRecommendedCourses from "./MyRecommendedCourses";
 import MyFavorites from "./MyFavorites";
 import styles from "./MyPage.module.css";

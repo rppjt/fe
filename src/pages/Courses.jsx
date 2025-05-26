@@ -1,7 +1,7 @@
 // src/pages/Courses.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./Courses.module.css";
+import styles from "./courses.module.css";
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
