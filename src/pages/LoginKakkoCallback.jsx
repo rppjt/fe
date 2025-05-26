@@ -1,52 +1,40 @@
-// src/pages/LoginKakkoCallback.jsx
 import { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const LoginKakkoCallback = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const { setAccessToken } = useAuth();
 
   useEffect(() => {
-    const code = searchParams.get("code");
-
-    if (!code) {
-      console.error("❌ code 파라미터가 없습니다.");
-      navigate("/");
-      return;
-    }
-
-    const exchangeToken = async () => {
+    const fetchAccessToken = async () => {
       try {
-        const res = await fetch("http://localhost:8080/login/kakao/callback", {
+        const res = await fetch("http://localhost:8080/auth/refresh", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code }),
+          credentials: "include",
         });
 
-        if (!res.ok) {
-          throw new Error("⚠️ 토큰 요청 실패");
-        }
+        if (!res.ok) throw new Error("accessToken 재발급 실패");
 
         const data = await res.json();
         const accessToken = data.accessToken;
 
         if (accessToken) {
-          localStorage.setItem("accessToken", accessToken); // ✅ 직접 저장
+          setAccessToken(accessToken); // ✅ 전역 상태에 저장
           navigate("/home");
         } else {
-          console.error("❌ accessToken이 응답에 없습니다.");
-          navigate("/");
+          throw new Error("accessToken이 없음");
         }
       } catch (err) {
-        console.error("❌ 로그인 처리 중 오류:", err);
+        console.error("❌ 로그인 실패:", err);
         navigate("/");
       }
     };
 
-    exchangeToken();
-  }, [navigate, searchParams]);
+    fetchAccessToken();
+  }, [navigate, setAccessToken]);
 
-  return <div>🔐 로그인 처리 중입니다...</div>;
+  return <p>🔐 로그인 중입니다...</p>;
 };
 
 export default LoginKakkoCallback;
