@@ -1,4 +1,3 @@
-  const authFetch = useAuthFetch();
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthFetch } from "../utils/useAuthFetch";
@@ -11,6 +10,7 @@ const Home = () => {
   const [allCourses, setAllCourses] = useState([]);
   const [showRecoveryPrompt, setShowRecoveryPrompt] = useState(false);
   const navigate = useNavigate();
+  const authFetch = useAuthFetch();
 
   // ✅ 사용자 정보 가져오기
   useEffect(() => {
@@ -20,7 +20,7 @@ const Home = () => {
         const data = await res.json();
         setUser(data);
       } catch (err) {
-        console.error("사용자 정보 가져오기 실패:", err);
+        console.error("사용자 정보 가져오기 실패 :", err);
       }
     };
     fetchUser();
