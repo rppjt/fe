@@ -6,7 +6,7 @@ import { formatElapsedTime, formatPace } from "../utils/timeUtils";
 import { calculateDistanceFromPath } from "../utils/geoUtils";
 import StartButton from "./buttons/StartButton";
 import StopButton from "./buttons/StopButton";
-import RunSummary from "./summaries/RunSummaries";
+import RunSummary from "./summaries/RunSummary";
 import styles from "./MapContainer.module.css";
 
 const MapContainer = () => {

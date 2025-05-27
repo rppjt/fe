@@ -1,9 +1,11 @@
 // src/components/LogoutButton.jsx
 import { useNavigate } from "react-router-dom";
-import { authFetch } from "../utils/authFetch";
+import { useAuthFetch } from "../utils/useAuthFetch";
+
 
 const LogoutButton = () => {
   const navigate = useNavigate();
+  const authFetch = useAuthFetch();
 
   const handleLogout = async () => {
     try {
