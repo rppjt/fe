@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthFetch } from "../utils/useAuthFetch";
-import styles from "./MyPage.module.css";
+import styles from "./myPage.module.css";
+
 
 const MyRecommendedCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -12,6 +13,7 @@ const MyRecommendedCourses = () => {
   const [editDescription, setEditDescription] = useState("");
   const [editThumbnail, setEditThumbnail] = useState("");
   const navigate = useNavigate();
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     const fetchMyCourses = async () => {

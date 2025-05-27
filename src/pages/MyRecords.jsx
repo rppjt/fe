@@ -1,7 +1,7 @@
 // src/pages/MyRecords.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./MyRecords.module.css";
+import styles from "./myRecords.module.css";
 
 const MyRecords = () => {
   const [records, setRecords] = useState([]);

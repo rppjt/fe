@@ -1,15 +1,16 @@
 // src/App.jsx
 import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/home";
-import LoginPage from "./pages/loginpage";
+import Home from "./pages/Home";
+import LoginPage from "./pages/Loginpage";
 import LoginKakkoCallback from "./pages/LoginKakkoCallback";
-import MyRecords from "./pages/myRecords";
-import DetailMyRecord from "./pages/detailMyRecord";
+import MyRecords from "./pages/MyRecords";
+import DetailMyRecord from "./pages/DetailMyRecord";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
 import MyPage from "./pages/MyPage";
-import { useAuth } from "./contexts/AuthContext";
+import { useAuth } from "./contexts/AuthContext.jsx";
+
 
 function App() {
   const { setAccessToken } = useAuth();

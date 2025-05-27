@@ -11,6 +11,7 @@ const Home = () => {
   const [allCourses, setAllCourses] = useState([]);
   const [showRecoveryPrompt, setShowRecoveryPrompt] = useState(false);
   const navigate = useNavigate();
+  const authFetch = useAuthFetch();
 
   // ✅ 사용자 정보 가져오기
   useEffect(() => {

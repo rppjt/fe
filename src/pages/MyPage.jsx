@@ -1,9 +1,9 @@
 // src/pages/MyPage.jsx
 import { useState } from "react";
-import MyRecords from "./MyRecord";
+import MyRecords from "./MyRecords";
 import MyRecommendedCourses from "./MyRecommendedCourses";
 import MyFavorites from "./MyFavorites";
-import styles from "./MyPage.module.css";
+import styles from "./myPage.module.css";
 
 const MyPage = () => {
   const [tab, setTab] = useState("records");
