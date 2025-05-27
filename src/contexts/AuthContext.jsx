@@ -3,7 +3,16 @@ import { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [accessToken, setAccessToken] = useState(null);
+  const [accessToken, setAccessTokenState] = useState(null);
+
+  const setAccessToken = (token) => {
+    if (token) {
+      localStorage.setItem("accessToken", token);
+    } else {
+      localStorage.removeItem("accessToken");
+    }
+    setAccessTokenState(token);
+  };
 
   useEffect(() => {
     const tryRefresh = async () => {
@@ -16,7 +25,7 @@ export const AuthProvider = ({ children }) => {
         if (!res.ok) throw new Error("refresh 실패");
 
         const data = await res.json();
-        setAccessToken(data.accessToken);
+        setAccessToken(data.access_token); // ✅ 커스터마이징 된 setter 사용
         console.log("✅ 자동 로그인 성공");
       } catch (err) {
         console.warn("❌ 자동 로그인 실패:", err);

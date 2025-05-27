@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./course.module.css";
+import { useAuthFetch } from "../utils/useAuthFetch"; // ✅ 인증된 fetch 훅
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("likes");
   const navigate = useNavigate();
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await fetch("http://localhost:8080/course");
+        const res = await authFetch("http://localhost:8080/course");
         const data = await res.json();
         setCourses(data);
       } catch (err) {
@@ -27,7 +29,7 @@ const Courses = () => {
   };
 
   const toggleBookmark = async (courseId, isBookmarked) => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("access_token");
 
     try {
       const res = await fetch(

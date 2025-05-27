@@ -10,7 +10,7 @@ const MyRecords = () => {
   useEffect(() => {
     const fetchRecords = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = localStorage.getItem("access_token");
         const res = await fetch("http://localhost:8080/running-record", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -34,7 +34,7 @@ const MyRecords = () => {
   };
 
   const toggleFavorite = async (record) => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("access_token");
     const isFavorite = record.favorite === true;
 
     try {
@@ -67,7 +67,7 @@ const MyRecords = () => {
   };
 
   const handleDelete = async (recordId) => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("access_token");
     try {
       await fetch(`http://localhost:8080/running-record/${recordId}/delete`, {
         method: "PATCH",
@@ -84,7 +84,7 @@ const MyRecords = () => {
   };
 
   const handleRestore = async (recordId) => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("access_token");
     try {
       await fetch(`http://localhost:8080/running-record/${recordId}/restore`, {
         method: "PATCH",

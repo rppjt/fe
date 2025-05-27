@@ -27,8 +27,8 @@ function App() {
         if (!res.ok) throw new Error("refresh 실패");
 
         const data = await res.json();
-        if (data.accessToken) {
-          setAccessToken(data.accessToken);
+        if (data.access_token) {
+          setAccessToken(data.access_token);
           console.log("🔁 accessToken 복원 완료");
         } else {
           console.warn("❗accessToken이 응답에 없음");
@@ -45,7 +45,7 @@ function App() {
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/home" element={<Home />} />
-      <Route path="/login/oauth2/callback" element={<LoginKakkoCallback />} />
+      <Route path="/login/callback" element={<LoginKakkoCallback />} />
       <Route path="/my-records" element={<MyRecords />} />
       <Route path="/record/:id" element={<DetailMyRecord />} />
       <Route path="/courses" element={<Courses />} />
