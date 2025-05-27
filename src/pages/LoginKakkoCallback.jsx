@@ -20,7 +20,7 @@ const LoginKakkoCallback = () => {
         const accessToken = data.accessToken;
 
         if (accessToken) {
-          setAccessToken(accessToken); // ✅ 전역 상태에 저장
+          setAccessToken(accessToken);
           navigate("/home");
         } else {
           throw new Error("accessToken이 없음");

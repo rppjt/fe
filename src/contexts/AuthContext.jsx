@@ -5,7 +5,6 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
 
-  // ✅ 앱 시작 시 refresh token으로 accessToken 갱신
   useEffect(() => {
     const tryRefresh = async () => {
       try {
@@ -21,7 +20,7 @@ export const AuthProvider = ({ children }) => {
         console.log("✅ 자동 로그인 성공");
       } catch (err) {
         console.warn("❌ 자동 로그인 실패:", err);
-        setAccessToken(null); // 명시적으로 초기화
+        setAccessToken(null);
       }
     };
 
