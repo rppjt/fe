@@ -12,7 +12,8 @@ const DetailMyRecord = () => {
   useEffect(() => {
     const fetchRecord = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/running-records/${id}`, {
+        const res = await fetch(`http://localhost:8080/running-record
+          /${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
