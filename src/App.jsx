@@ -11,6 +11,7 @@ import CourseDetail from "./pages/CourseDetail";
 import MyPage from "./pages/MyPage";
 import { useAuth } from "./contexts/AuthContext.jsx";
 
+
 function App() {
   const { setAccessToken } = useAuth();
 

@@ -1,8 +1,10 @@
 // src/pages/MyFavorites.jsx
+  const authFetch = useAuthFetch();
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthFetch } from "../utils/useAuthFetch";
 import styles from "./myPage.module.css";
+
 
 const MyFavorites = () => {
   const [favorites, setFavorites] = useState([]);
