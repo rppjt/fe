@@ -25,14 +25,16 @@ const Courses = () => {
   }, []);
 
   const handleClick = (id) => {
-    navigate(`/course/${id}`);
+    if (id !== undefined) {
+      navigate(`/course/${id}`);
+    }
   };
 
   const toggleBookmark = async (courseId, isBookmarked) => {
     const token = localStorage.getItem("access_token");
 
     try {
-      const res = await fetch(
+      const res = await authFetch(
         `http://localhost:8080/course/bookmark/${courseId}`,
         {
           method: "POST",
@@ -56,7 +58,7 @@ const Courses = () => {
 
   const filteredCourses = courses
     .filter((course) =>
-      (course.title + (course.description || "")).toLowerCase().includes(searchQuery.toLowerCase())
+      (course.endName + (course.description || "")).toLowerCase().includes(searchQuery.toLowerCase())
     )
     .sort((a, b) => {
       if (sortOption === "likes") return b.likes - a.likes;
@@ -72,7 +74,7 @@ const Courses = () => {
       <div className={styles.controls}>
         <input
           type="text"
-          placeholder="제목 또는 설명 검색"
+          placeholder="목적지 또는 설명 검색"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className={styles.searchInput}
@@ -95,17 +97,19 @@ const Courses = () => {
         <ul className={styles.courseList}>
           {filteredCourses.map((course) => (
             <li
-              key={course.id}
+              key={course.id || Math.random()}
               className={styles.courseItem}
               onClick={() => handleClick(course.id)}
             >
               <img
                 src="/course-default-thumbnail.jpg"
-                alt={course.title}
+                alt={course.endName || "코스"}
                 className={styles.thumbnail}
               />
               <div className={styles.info}>
-                <p className={styles.title}>{course.title}</p>
+                <p className={styles.endName}>
+                  {course.endName || "목적지 미지정"}
+                </p>
                 <p>{course.distance} km | ❤️ {course.likes}</p>
                 <p className={styles.description}>
                   {course.description || "설명이 없습니다."}

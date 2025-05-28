@@ -50,9 +50,10 @@
   flex: 1;
 }
 
-.title {
-  font-size: 1.2rem;
-  font-weight: bold;
+.endName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
 }
 
 .description {

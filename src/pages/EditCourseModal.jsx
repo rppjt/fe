@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import styles from "./editCourseModal.module.css";
+import { useAuthFetch } from "../utils/useAuthFetch"; // 인증된 fetch 훅
 
 const EditCourseModal = ({ course, onClose, onSave }) => {
   const [title, setTitle] = useState(course.title || "");
   const [description, setDescription] = useState(course.description || "");
   const [thumbnailUrl, setThumbnailUrl] = useState(course.thumbnailUrl || "");
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     setTitle(course.title || "");
@@ -14,7 +16,7 @@ const EditCourseModal = ({ course, onClose, onSave }) => {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`http://localhost:8080/course/${course.id}`, {
+      const res = await authFetch(`http://localhost:8080/course/${course.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

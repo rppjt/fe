@@ -2,10 +2,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./RecoverPage.module.css";
+import { useAuthFetch } from "../utils/useAuthFetch"; // 인증된 fetch 훅
 
 const RecoverPage = () => {
   const navigate = useNavigate();
   const [recoveryData, setRecoveryData] = useState(null);
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     const data = localStorage.getItem("unsavedRun");
@@ -20,7 +22,7 @@ const RecoverPage = () => {
   const handleRestore = async () => {
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch("http://localhost:8080/running-record", {
+      const res = await authFetch("http://localhost:8080/running-record", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

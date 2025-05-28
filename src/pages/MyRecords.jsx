@@ -2,16 +2,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./myRecords.module.css";
+import { useAuthFetch } from "../utils/useAuthFetch"; // 인증된 fetch 훅
 
 const MyRecords = () => {
   const [records, setRecords] = useState([]);
   const navigate = useNavigate();
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     const fetchRecords = async () => {
       try {
         const token = localStorage.getItem("access_token");
-        const res = await fetch("http://localhost:8080/running-record", {
+        const res = await authFetch("http://localhost:8080/running-record", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

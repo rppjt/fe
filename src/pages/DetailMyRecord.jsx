@@ -2,17 +2,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import styles from "./myRecords.module.css";
+import { useAuthFetch } from "../utils/useAuthFetch"; // 인증된 fetch 훅
 
 const DetailMyRecord = () => {
   const { id } = useParams();
   const mapRef = useRef(null);
   const polylineRef = useRef(null);
   const [record, setRecord] = useState(null);
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     const fetchRecord = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/running-record
+        const res = await authFetch(`http://localhost:8080/running-record
           /${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,

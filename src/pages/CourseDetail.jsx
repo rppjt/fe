@@ -1,87 +1,70 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import styles from "./CourseDetail.module.css";
+import { useAuth } from "../contexts/AuthContext";
+import { useAuthFetch } from "../utils/useAuthFetch";
 
 const CourseDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { accessToken } = useAuth();
+  const authFetch = useAuthFetch();
+
   const [course, setCourse] = useState(null);
-  const [likes, setLikes] = useState(0);
-  const mapRef = useRef(null);
-  const polylineRef = useRef(null);
-  const navigate = useNavigate(); // ✅ 추가
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        const res = await fetch(`http://localhost:8080/course/${id}`);
-        const data = await res.json();
-        setCourse(data);
-        setLikes(data.likes);
-
-        // 지도 표시
-        if (!window.kakao || !window.kakao.maps) return;
-        const pathCoords = data.pathGeoJson.coordinates.map(([lng, lat]) =>
-          new window.kakao.maps.LatLng(lat, lng)
-        );
-
-        const map = new window.kakao.maps.Map(mapRef.current, {
-          center: pathCoords[0],
-          level: 4,
-        });
-
-        const polyline = new window.kakao.maps.Polyline({
-          path: pathCoords,
-          strokeWeight: 4,
-          strokeColor: "#007bff",
-          strokeOpacity: 0.9,
-          strokeStyle: "solid",
-        });
-
-        polyline.setMap(map);
-        polylineRef.current = polyline;
-      } catch (err) {
-        console.error("코스 정보 로딩 실패:", err);
-      }
-    };
-
-    fetchCourse();
-  }, [id]);
-
-  // ❤️ 좋아요 토글
-  const handleLikeToggle = async () => {
+  const fetchCourse = async () => {
     try {
-      const res = await fetch(`http://localhost:8080/course/like/${id}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const res = await authFetch(`http://localhost:8080/course/${id}`);
+
+      if (res.status === 401) {
+        setError("로그인이 필요합니다.");
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error("응답 실패");
+      }
+
       const data = await res.json();
-      setLikes(data.likes);
+      setCourse(data);
     } catch (err) {
-      console.error("좋아요 토글 실패:", err);
+      console.error("코스 정보 로딩 실패:", err);
+      setError("코스 정보를 불러오는 중 오류가 발생했습니다.");
     }
   };
 
-  // 🧭 따라가기 버튼
-  const handleFollow = () => {
-    navigate(`/run?courseId=${id}`);
-  };
+  useEffect(() => {
+    if (!accessToken) {
+      // 자동 로그인 시도 전 또는 비로그인 상태
+      return;
+    }
+    fetchCourse();
+  }, [accessToken]);
 
-  if (!course) return <div>로딩 중...</div>;
+  if (!accessToken) {
+    return <p>🔒 로그인 정보를 확인 중입니다...</p>;
+  }
+
+  if (error) {
+    return (
+      <div>
+        <p>❌ {error}</p>
+        <button onClick={() => navigate("/")}>홈으로 이동</button>
+      </div>
+    );
+  }
+
+  if (!course) {
+    return <p>📦 코스 정보를 불러오는 중...</p>;
+  }
 
   return (
-    <div className={styles.container}>
-      <h2>{course.title}</h2>
+    <div style={{ padding: "2rem" }}>
+      <h2>🏁 {course.title}</h2>
+      <p>📍 도착지: {course.endName}</p>
       <p>📏 거리: {course.distance} km</p>
-      <p>❤️ 좋아요: {likes}</p>
-      <button onClick={handleLikeToggle} className={styles.likeButton}>
-        ❤️ 좋아요 토글
-      </button>
-      <button onClick={handleFollow} className={styles.followButton}>
-        🧭 따라가기
-      </button>
-      <div ref={mapRef} className={styles.map}></div>
+      <p>❤️ 좋아요: {course.likes}</p>
+      <p>📝 설명: {course.description || "설명이 없습니다."}</p>
     </div>
   );
 };
