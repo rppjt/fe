@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthFetch } from "../utils/useAuthFetch";
 import styles from "./myPage.module.css";
-import { useAuthFetch } from "../utils/useAuthFetch"; // 인증된 fetch 훅
 
 
 const MyRecommendedCourses = () => {
