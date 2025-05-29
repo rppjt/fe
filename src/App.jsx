@@ -49,7 +49,7 @@ function App() {
       <Route path="/my-records" element={<MyRecords />} />
       <Route path="/record/:id" element={<DetailMyRecord />} />
       <Route path="/courses" element={<Courses />} />
-      <Route path="/courses/:id" element={<CourseDetail />} />
+      <Route path="/course/:id" element={<CourseDetail />} />
       <Route path="/mypage" element={<MyPage />} />
     </Routes>
   );

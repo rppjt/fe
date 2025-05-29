@@ -107,7 +107,7 @@ const Courses = () => {
                 className={styles.thumbnail}
               />
               <div className={styles.info}>
-                <p className={styles.endName}>
+                <p className={styles.endLocationName}>
                   {course.endName || "목적지 미지정"}
                 </p>
                 <p>{course.distance} km | ❤️ {course.likes}</p>
