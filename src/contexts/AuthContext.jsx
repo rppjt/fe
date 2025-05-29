@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const pathname = window.location.pathname;
     
-    // ✅ 로그인 페이지(/ 또는 /login)에서는 자동 로그인 시도하지 않음
     if (pathname === "/" || pathname === "/login") return;
 
     const tryRefresh = async () => {

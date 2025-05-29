@@ -1,8 +1,7 @@
-// src/pages/MyRecords.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./myRecords.module.css";
-import { useAuthFetch } from "../utils/useAuthFetch"; // 인증된 fetch 훅
+import { useAuthFetch } from "../utils/useAuthFetch";
 
 const MyRecords = () => {
   const [records, setRecords] = useState([]);
@@ -12,12 +11,7 @@ const MyRecords = () => {
   useEffect(() => {
     const fetchRecords = async () => {
       try {
-        const token = localStorage.getItem("access_token");
-        const res = await authFetch("http://localhost:8080/running-record", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await authFetch("http://localhost:8080/running-record");
 
         if (!res.ok) throw new Error("데이터 로딩 실패");
 
@@ -36,26 +30,21 @@ const MyRecords = () => {
   };
 
   const toggleFavorite = async (record) => {
-    const token = localStorage.getItem("access_token");
     const isFavorite = record.favorite === true;
 
     try {
       if (isFavorite) {
-        await fetch(`http://localhost:8080/favorite/${record.id}`, {
+        await authFetch(`http://localhost:8080/favorite/${record.id}`, {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
         });
         alert("⭐ 즐겨찾기에서 삭제됨");
         setRecords((prev) =>
           prev.map((r) => (r.id === record.id ? { ...r, favorite: false } : r))
         );
       } else {
-        await fetch(`http://localhost:8080/favorite`, {
+        await authFetch(`http://localhost:8080/favorite`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ recordId: record.id }),
         });
         alert("⭐ 즐겨찾기에 추가됨");
@@ -69,11 +58,9 @@ const MyRecords = () => {
   };
 
   const handleDelete = async (recordId) => {
-    const token = localStorage.getItem("access_token");
     try {
-      await fetch(`http://localhost:8080/running-record/${recordId}/delete`, {
+      await authFetch(`http://localhost:8080/running-record/${recordId}/delete`, {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
       });
       setRecords((prev) =>
         prev.map((r) =>
@@ -86,11 +73,9 @@ const MyRecords = () => {
   };
 
   const handleRestore = async (recordId) => {
-    const token = localStorage.getItem("access_token");
     try {
-      await fetch(`http://localhost:8080/running-record/${recordId}/restore`, {
+      await authFetch(`http://localhost:8080/running-record/${recordId}/restore`, {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
       });
       setRecords((prev) =>
         prev.map((r) =>
