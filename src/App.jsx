@@ -1,5 +1,4 @@
 // src/App.jsx
-import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import LoginPage from "./pages/Loginpage";
@@ -9,38 +8,8 @@ import DetailMyRecord from "./pages/DetailMyRecord";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
 import MyPage from "./pages/MyPage";
-import { useAuth } from "./contexts/AuthContext.jsx";
-
 
 function App() {
-  const { setAccessToken } = useAuth();
-
-  // ✅ 새로고침 시 토큰 복원 로직
-  useEffect(() => {
-    const restoreAccessToken = async () => {
-      try {
-        const res = await fetch("http://localhost:8080/auth/refresh", {
-          method: "POST",
-          credentials: "include", // ✅ refreshToken 쿠키 자동 전송
-        });
-
-        if (!res.ok) throw new Error("refresh 실패");
-
-        const data = await res.json();
-        if (data.access_token) {
-          setAccessToken(data.access_token);
-          console.log("🔁 accessToken 복원 완료");
-        } else {
-          console.warn("❗accessToken이 응답에 없음");
-        }
-      } catch (err) {
-        console.warn("🔁 자동 로그인 복원 실패:", err);
-      }
-    };
-
-    restoreAccessToken();
-  }, [setAccessToken]);
-
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
