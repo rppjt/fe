@@ -54,7 +54,7 @@ const MyRecommendedCourses = () => {
     setEditId(course.id);
     setEditTitle(course.title);
     setEditDescription(course.description || "");
-    setEditThumbnail(course.thumbnailUrl || "");
+    setEditThumbnail(course.imageUrl || "");
   };
 
   const handleEditCancel = () => {
@@ -135,10 +135,10 @@ const MyRecommendedCourses = () => {
               ) : (
                 <>
                   <p className={styles.courseTitle}>{course.title}</p>
-                  <p>{course.distance} km | ❤️ {course.likes}</p>
+                  <p>{course.totalDistance} km | ❤️ {course.likes}</p>
                   <p>{course.description || "설명이 없습니다."}</p>
                   <img
-                    src={course.thumbnailUrl || "/course-default-thumbnail.jpg"}
+                    src={course.imageUrl || "/course-default-thumbnail.jpg"}
                     alt={course.title}
                     className={styles.thumbnail}
                   />

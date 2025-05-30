@@ -44,7 +44,7 @@ const MyFavorites = () => {
       if (!res.ok) throw new Error("즐겨찾기 해제 실패");
 
       // 삭제된 항목만 제외
-      setFavorites((prev) => prev.filter((c) => c.id !== courseId));
+      setFavorites((prev) => prev.filter((c) => c.courseId !== courseId));
     } catch (err) {
       console.error("❌ 즐겨찾기 토글 실패:", err);
     }
@@ -59,22 +59,23 @@ const MyFavorites = () => {
         <ul className={styles.favoriteList}>
           {favorites.map((course) => (
             <li
-              key={course.id}
+              key={course.courseId}
               className={styles.favoriteItem}
-              onClick={() => handleClick(course.id)}
+              onClick={() => handleClick(course.courseId)}
             >
               <p className={styles.courseTitle}>{course.title}</p>
-              <p>{course.distance} km | ❤️ {course.likes}</p>
-              <p>{course.description || "설명이 없습니다."}</p>
+              <p>{course.totalDistance} km</p>
+              {/* ❤️ {course.likes} */}
+              {/* <p>{course.description || "설명이 없습니다."}</p> */}
               <img
-                src={course.thumbnailUrl || "/course-default-thumbnail.jpg"}
+                src={course.imageUrl || "/course-default-thumbnail.jpg"}
                 alt={course.title}
                 className={styles.thumbnail}
               />
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleBookmark(course.id);
+                  toggleBookmark(course.courseId);
                 }}
               >
                 ⭐ 즐겨찾기 해제

@@ -62,30 +62,40 @@ const MyRecords = () => {
       await authFetch(`http://localhost:8080/running-record/${recordId}/delete`, {
         method: "PATCH",
       });
-      setRecords((prev) =>
-        prev.map((r) =>
-          r.id === recordId ? { ...r, isDeleted: true } : r
-        )
-      );
+      setRecords((prev) => prev.filter((r) => r.id !== recordId));
     } catch (err) {
       console.error("❌ 삭제 실패:", err);
     }
   };
+  // const handleDelete = async (recordId) => {
+  //   try {
+  //     await authFetch(`http://localhost:8080/running-record/${recordId}/delete`, {
+  //       method: "PATCH",
+  //     });
+  //     setRecords((prev) =>
+  //       prev.map((r) =>
+  //         r.id === recordId ? { ...r, isDeleted: true } : r
+  //       )
+  //     );
+  //   } catch (err) {
+  //     console.error("❌ 삭제 실패:", err);
+  //   }
+  // };
 
-  const handleRestore = async (recordId) => {
-    try {
-      await authFetch(`http://localhost:8080/running-record/${recordId}/restore`, {
-        method: "PATCH",
-      });
-      setRecords((prev) =>
-        prev.map((r) =>
-          r.id === recordId ? { ...r, isDeleted: false } : r
-        )
-      );
-    } catch (err) {
-      console.error("❌ 복구 실패:", err);
-    }
-  };
+  // const handleRestore = async (recordId) => {
+  //   try {
+  //     await authFetch(`http://localhost:8080/running-record/${recordId}/restore`, {
+  //       method: "PATCH",
+  //     });
+  //     setRecords((prev) =>
+  //       prev.map((r) =>
+  //         r.id === recordId ? { ...r, isDeleted: false } : r
+  //       )
+  //     );
+  //   } catch (err) {
+  //     console.error("❌ 복구 실패:", err);
+  //   }
+  // };
 
   return (
     <div className={styles.container}>
@@ -98,18 +108,39 @@ const MyRecords = () => {
             <li
               key={record.id}
               className={styles.recordItem}
-              onClick={() => !record.isDeleted && handleClick(record.id)}
-              style={{
-                opacity: record.isDeleted ? 0.5 : 1,
-                pointerEvents: record.isDeleted ? "none" : "auto",
-              }}
-            >
-              <p><strong>날짜:</strong> {new Date(record.createdAt).toLocaleDateString()}</p>
-              <p><strong>거리:</strong> {record.distance} km</p>
-              <p><strong>시간:</strong> {Math.floor(record.time / 60)}분 {record.time % 60}초</p>
-              <p><strong>페이스:</strong> {record.pace}</p>
+              onClick={() => handleClick(record.id)}
 
+              // onClick={() => !record.isDeleted && handleClick(record.id)}
+              // style={{
+              //   opacity: record.isDeleted ? 0.5 : 1,
+              //   pointerEvents: record.isDeleted ? "none" : "auto",
+              // }}
+            >
+              <p><strong>날짜:</strong> {new Date(record.createAt).toLocaleDateString()}</p>
+              <p><strong>거리:</strong> {record.totalDistance} km</p>
+              <p><strong>시간:</strong> {Math.floor(record.totalTime / 60)}분 {record.totalTime % 60}초</p>
+              <p><strong>페이스:</strong> {record.pace}</p>
               <div className={styles.actions}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(record.id);
+                  }}
+                  className={styles.deleteButton}
+                >
+                  🗑️ 삭제
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+
+              {/* <div className={styles.actions}>
                 {record.isDeleted ? (
                   <button onClick={() => handleRestore(record.id)}>♻️ 복구</button>
                 ) : (
@@ -144,7 +175,7 @@ const MyRecords = () => {
         </ul>
       )}
     </div>
-  );
-};
+  ); */}
+// };
 
 export default MyRecords;
