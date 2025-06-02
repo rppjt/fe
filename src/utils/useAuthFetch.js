@@ -25,6 +25,9 @@ export const useAuthFetch = () => {
 
     let res = await fetch(url, config);
 
+    
+
+    /*
     if (res.status === 401) {
       try {
         const refreshRes = await fetch("http://localhost:8080/auth/refresh", {
@@ -56,7 +59,7 @@ export const useAuthFetch = () => {
         throw err;
       }
     }
-
+    */
     return res;
   };
 

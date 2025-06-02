@@ -5,6 +5,8 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessTokenState] = useState(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+
 
   const setAccessToken = (token) => {
     if (token) {
@@ -14,12 +16,13 @@ export const AuthProvider = ({ children }) => {
     }
     setAccessTokenState(token);
   };
-
+  /*
   useEffect(() => {
     const pathname = window.location.pathname;
     
     if (pathname === "/" || pathname === "/login") return;
 
+    // 자동 로그인 시도
     const tryRefresh = async () => {
       try {
         const res = await fetch("http://localhost:8080/auth/refresh", {
@@ -40,9 +43,17 @@ export const AuthProvider = ({ children }) => {
 
     tryRefresh();
   }, []);
+  */
+ useEffect(() => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    setAccessToken(token);
+  }
+  setIsAuthReady(true); // 복원 완료
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ accessToken, setAccessToken }}>
+      <AuthContext.Provider value={{ accessToken, setAccessToken, isAuthReady }}>
       {children}
     </AuthContext.Provider>
   );
