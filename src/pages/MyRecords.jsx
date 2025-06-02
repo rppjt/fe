@@ -2,13 +2,18 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./myRecords.module.css";
 import { useAuthFetch } from "../utils/useAuthFetch";
+import { useAuth } from "../contexts/AuthContext.jsx";
+
 
 const MyRecords = () => {
   const [records, setRecords] = useState([]);
   const navigate = useNavigate();
   const authFetch = useAuthFetch();
+  const { isAuthReady } = useAuth();
 
   useEffect(() => {
+    if (!isAuthReady) return;
+
     const fetchRecords = async () => {
       try {
         const res = await authFetch("http://localhost:8080/running-record");
@@ -23,7 +28,7 @@ const MyRecords = () => {
     };
 
     fetchRecords();
-  }, []);
+  }, [isAuthReady]);
 
   const handleClick = (id) => {
     navigate(`/my-records/${id}`);
