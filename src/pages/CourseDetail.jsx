@@ -46,18 +46,17 @@ const CourseDetail = () => {
     if (!res.ok) throw new Error("좋아요 요청 실패");
 
     setCourse((prev) => {
-    if (!prev || typeof prev.isLiked !== "boolean") return prev;
+      if (!prev || typeof prev.isLiked !== "boolean") return prev;
 
-    const newLiked = !prev.isLiked;
-    const newCount = newLiked ? prev.likeCount + 1 : prev.likeCount - 1;
+      const newLiked = !prev.isLiked;
+      const newCount = newLiked ? prev.likeCount + 1 : prev.likeCount - 1;
 
-    return {
-      ...prev,
-      isLiked: newLiked,
-      likeCount: newCount,
-  };
-});
-
+      return {
+        ...prev,
+        isLiked: newLiked,
+        likeCount: newCount,
+      };
+    });
   } catch (err) {
     console.error("좋아요 실패:", err);
   }
