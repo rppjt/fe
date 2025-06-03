@@ -40,9 +40,6 @@ const Courses = () => {
         `http://localhost:8080/course/bookmark/${courseId}`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 
@@ -58,11 +55,13 @@ const Courses = () => {
     }
   };
 
+
   const filteredCourses = courses.filter((course) =>
     (course.endLocationName + (course.description || ""))
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
   );
+
 
   return (
     <div className={styles.container}>
