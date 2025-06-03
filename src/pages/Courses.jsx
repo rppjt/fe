@@ -6,7 +6,7 @@ import { useAuthFetch } from "../utils/useAuthFetch"; // ✅ 인증된 fetch 훅
 const Courses = () => {
   const [courses, setCourses] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOption, setSortOption] = useState("likes");
+  const [sortOption, setSortOption] = useState("LIKE");
   const navigate = useNavigate();
   const authFetch = useAuthFetch();
 
@@ -82,9 +82,9 @@ const Courses = () => {
           onChange={(e) => setSortOption(e.target.value)}
           className={styles.sortSelect}
         >
-          <option value="likes">❤️ 좋아요순</option>
-          <option value="latest">🕒 최신순</option>
-          <option value="distance">📏 거리순</option>
+          <option value="LIKE">❤️ 좋아요순</option>
+          <option value="RECENT">🕒 최신순</option>
+          <option value="DISTANCE">📏 거리순</option>
         </select>
       </div>
 
@@ -107,7 +107,7 @@ const Courses = () => {
                 <p className={styles.endLocationName}>
                   {course.endLocationName || "목적지 미지정"}
                 </p>
-                <p>{course.distance} km | ❤️ {course.likes}</p>
+                <p>{course.totalDistance} km | ❤️ {course.likes}</p>
                 <p className={styles.description}>
                   {course.description || "설명이 없습니다."}
                 </p>

@@ -62,7 +62,7 @@ const CourseDetail = () => {
     <div style={{ padding: "2rem" }}>
       <h2>🏁 {course.title}</h2>
       <p>📍 도착지: {course.endLocationName}</p>
-      <p>📏 거리: {course.distance} km</p>
+      <p>📏 거리: {course.totalDistance} km</p>
       <p>❤️ 좋아요: {course.likes}</p>
       <p>📝 설명: {course.description || "설명이 없습니다."}</p>
     </div>
