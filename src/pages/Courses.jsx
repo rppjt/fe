@@ -6,14 +6,16 @@ import { useAuthFetch } from "../utils/useAuthFetch"; // ✅ 인증된 fetch 훅
 const Courses = () => {
   const [courses, setCourses] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOption, setSortOption] = useState("likes");
+  const [sortOption, setSortOption] = useState("LIKE");
   const navigate = useNavigate();
   const authFetch = useAuthFetch();
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await authFetch("http://localhost:8080/course");
+        const res = await authFetch(
+          `http://localhost:8080/course?sortType=${sortOption.toUpperCase()}`
+        );
         const data = await res.json();
         setCourses(data);
       } catch (err) {
@@ -22,7 +24,7 @@ const Courses = () => {
     };
 
     fetchCourses();
-  }, []);
+  }, [sortOption]);
 
   const handleClick = (id) => {
     if (id !== undefined) {
@@ -56,16 +58,11 @@ const Courses = () => {
     }
   };
 
-  const filteredCourses = courses
-    .filter((course) =>
-      (course.endName + (course.description || "")).toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .sort((a, b) => {
-      if (sortOption === "likes") return b.likes - a.likes;
-      if (sortOption === "latest") return new Date(b.createdAt) - new Date(a.createdAt);
-      if (sortOption === "distance") return a.distance - b.distance;
-      return 0;
-    });
+  const filteredCourses = courses.filter((course) =>
+    (course.endLocationName + (course.description || ""))
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className={styles.container}>
@@ -85,9 +82,9 @@ const Courses = () => {
           onChange={(e) => setSortOption(e.target.value)}
           className={styles.sortSelect}
         >
-          <option value="likes">❤️ 좋아요순</option>
-          <option value="latest">🕒 최신순</option>
-          <option value="distance">📏 거리순</option>
+          <option value="LIKE">❤️ 좋아요순</option>
+          <option value="RECENT">🕒 최신순</option>
+          <option value="DISTANCE">📏 거리순</option>
         </select>
       </div>
 
@@ -103,14 +100,14 @@ const Courses = () => {
             >
               <img
                 src="/course-default-thumbnail.jpg"
-                alt={course.endName || "코스"}
+                alt={course.endLocationName || "코스"}
                 className={styles.thumbnail}
               />
               <div className={styles.info}>
                 <p className={styles.endLocationName}>
-                  {course.endName || "목적지 미지정"}
+                  {course.endLocationName || "목적지 미지정"}
                 </p>
-                <p>{course.distance} km | ❤️ {course.likes}</p>
+                <p>{course.totalDistance} km | ❤️ {course.likes}</p>
                 <p className={styles.description}>
                   {course.description || "설명이 없습니다."}
                 </p>

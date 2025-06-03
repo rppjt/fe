@@ -36,13 +36,11 @@ const Home = () => {
         const { latitude, longitude } = pos.coords;
 
         const res = await authFetch(
-          `http://localhost:8080/course`
+          `http://localhost:8080/course?sortType=LIKE`
         );
         const data = await res.json();
 
-        const topLiked = data.sort((a, b) => b.likes - a.likes).slice(0, 10);
-        const shuffled = topLiked.sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, 3);
+        const selected = data.slice(0, 3);
         setAllCourses(selected);
       } catch (err) {
         console.error("추천 코스 불러오기 실패:", err);
@@ -113,11 +111,11 @@ const Home = () => {
             >
               <img
                 src="/course-default-thumbnail.jpg"
-                alt={course.title}
+                alt={course.endLocationName || "코스"}
                 className={styles.thumbnail}
               />
               <div className={styles.courseInfo}>
-                <p className={styles.title}>{course.title}</p>
+                <p className={styles.endLocationName}>{course.endLocationName}</p>
                 <p className={styles.likes}>❤️ {course.likes}</p>
               </div>
             </div>
