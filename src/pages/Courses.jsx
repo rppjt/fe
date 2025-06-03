@@ -13,7 +13,9 @@ const Courses = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await authFetch("http://localhost:8080/course");
+        const res = await authFetch(
+          `http://localhost:8080/course?sortType=${sortOption.toUpperCase()}`
+        );
         const data = await res.json();
         setCourses(data);
       } catch (err) {
@@ -22,7 +24,7 @@ const Courses = () => {
     };
 
     fetchCourses();
-  }, []);
+  }, [sortOption]);
 
   const handleClick = (id) => {
     if (id !== undefined) {
@@ -56,16 +58,11 @@ const Courses = () => {
     }
   };
 
-  const filteredCourses = courses
-    .filter((course) =>
-      (course.endName + (course.description || "")).toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .sort((a, b) => {
-      if (sortOption === "likes") return b.likes - a.likes;
-      if (sortOption === "latest") return new Date(b.createdAt) - new Date(a.createdAt);
-      if (sortOption === "distance") return a.distance - b.distance;
-      return 0;
-    });
+  const filteredCourses = courses.filter((course) =>
+    (course.endLocationName + (course.description || ""))
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className={styles.container}>
@@ -103,12 +100,12 @@ const Courses = () => {
             >
               <img
                 src="/course-default-thumbnail.jpg"
-                alt={course.endName || "코스"}
+                alt={course.endLocationName || "코스"}
                 className={styles.thumbnail}
               />
               <div className={styles.info}>
                 <p className={styles.endLocationName}>
-                  {course.endName || "목적지 미지정"}
+                  {course.endLocationName || "목적지 미지정"}
                 </p>
                 <p>{course.distance} km | ❤️ {course.likes}</p>
                 <p className={styles.description}>
