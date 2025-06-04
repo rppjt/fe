@@ -8,6 +8,7 @@ import DetailMyRecord from "./pages/DetailMyRecord";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
 import MyPage from "./pages/MyPage";
+import RecoverPage from "./pages/RecoverPage";
 
 function App() {
   return (
@@ -16,10 +17,11 @@ function App() {
       <Route path="/home" element={<Home />} />
       <Route path="/login/callback" element={<LoginKakkoCallback />} />
       <Route path="/my-records" element={<MyRecords />} />
-      <Route path="/record/:id" element={<DetailMyRecord />} />
+      <Route path="/my-records/:id" element={<DetailMyRecord />} />
       <Route path="/courses" element={<Courses />} />
       <Route path="/course/:id" element={<CourseDetail />} />
       <Route path="/mypage" element={<MyPage />} />
+      <Route path="/recover" element={<RecoverPage />} />
     </Routes>
   );
 }
