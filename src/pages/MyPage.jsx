@@ -3,6 +3,7 @@ import { useState } from "react";
 import MyRecords from "./MyRecords";
 import MyRecommendedCourses from "./MyRecommendedCourses";
 import MyFavorites from "./MyFavorites";
+import RecoverPage from "./RecoverPage";
 import styles from "./myPage.module.css";
 
 const MyPage = () => {
@@ -30,6 +31,12 @@ const MyPage = () => {
           className={tab === "favorites" ? styles.active : ""}
         >
           ⭐ 즐겨찾기한 코스
+        </button>
+        <button
+          onClick={() => setTab("recover")}
+          className={tab === "recover" ? styles.active : ""}
+        >
+          📦 복구
         </button>
       </div>
 

@@ -44,8 +44,28 @@ const RecoverPage = () => {
 
   const handleCancel = () => {
     localStorage.removeItem("unsavedRun");
-    navigate("/home");
+    navigate("/recover");
   };
+
+  const handlePermanentDelete = async (recordId) => {
+  if (window.confirm("영구적으로 삭제됩니다. 계속하시겠습니까?")) {
+    try {
+      await authFetch(`http://localhost:8080/running-record/${recordId}/delete-permanent`, {
+        method: "DELETE",
+      });
+      alert("✅ 기록이 영구 삭제되었습니다.");
+
+      // 영구 삭제 후 my-records로 이동
+      navigate("/my-records");
+    } catch (err) {
+      console.error("❌ 영구 삭제 실패:", err);
+      alert("영구 삭제 실패");
+    }
+  } else {
+    // 취소 시 아무 작업 없이 팝업창을 닫고 그대로 `RecoverPage`에 남게 됩니다.
+    console.log("삭제가 취소되었습니다.");
+  }
+};
 
   if (!recoveryData) return <div>로딩 중...</div>;
 
@@ -57,7 +77,8 @@ const RecoverPage = () => {
       <p><strong>평균 페이스:</strong> {recoveryData.pace}</p>
       <div className={styles.buttons}>
         <button onClick={handleRestore}>✅ 복구하기</button>
-        <button onClick={handleCancel}>❌ 취소</button>
+        <button onClick={() => handlePermanentDelete(recoveryData.id)}>🗑️ 삭제</button>
+        <button onClick={handleCancel}>취소</button>
       </div>
     </div>
   );
