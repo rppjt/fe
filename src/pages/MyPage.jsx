@@ -4,6 +4,7 @@ import MyRecords from "./MyRecords";
 import MyRecommendedCourses from "./MyRecommendedCourses";
 import MyFavorites from "./MyFavorites";
 import RecoverPage from "./RecoverPage";
+import Friends from "./Friends";
 import styles from "./myPage.module.css";
 
 const MyPage = () => {
@@ -38,12 +39,20 @@ const MyPage = () => {
         >
           📦 복구
         </button>
+        <button
+          onClick={() => setTab("friends")}
+          className={tab === "friends" ? styles.active : ""}
+        >
+          👥 친구들
+          </button>
       </div>
-
+      console.log("현재 탭 상태:", tab);
       <div className={styles.content}>
         {tab === "records" && <MyRecords />}
         {tab === "recommended" && <MyRecommendedCourses />}
         {tab === "favorites" && <MyFavorites />}
+        {tab === "recover" && <RecoverPage />}
+        {tab === "friends" && <Friends />}
       </div>
     </div>
   );

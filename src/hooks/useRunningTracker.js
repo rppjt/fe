@@ -116,6 +116,7 @@ export const useRunningTracker = (mapRef, markerRef) => {
 
     if (path.length < 2) {
       alert("기록된 경로가 너무 짧아 저장되지 않았습니다.");
+      localStorage.setItem("runningState", JSON.stringify({ isRunning: false }));
       return null;
     }
 
@@ -125,7 +126,7 @@ export const useRunningTracker = (mapRef, markerRef) => {
 
     setElapsedTime(0); // ⏱️ 경과 시간 초기화
     localStorage.removeItem("runningState");
-    
+
     return {
       start,
       end,
@@ -142,5 +143,5 @@ export const useRunningTracker = (mapRef, markerRef) => {
     startRunning,
     stopRunning,
     restoreRunningState,
-  };
+  } 
 };

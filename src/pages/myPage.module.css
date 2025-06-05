@@ -190,3 +190,10 @@ input:checked + .slider::before {
 .toggleLabel {
   font-size: 1rem;
 }
+
+.friendsContainer {
+  padding: 1rem;
+  background-color: #fefefe;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
