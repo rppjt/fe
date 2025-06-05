@@ -28,6 +28,12 @@ const MapContainer = () => {
   const [distance, setDistance] = useState(0);
   const [averagePace, setAveragePace] = useState("");
   const [metaData, setMetaData] = useState(null);
+  const [friendLocations, setFriendLocations] = useState([]);
+
+  const [showFriendsOnMap] = useState(() => {
+    const stored = localStorage.getItem("showFriendsOnMap");
+    return stored === null ? true : stored === "true";
+  });
 
   useKakaoMap({ mapRef, markerRef, containerRef });
 
@@ -79,62 +85,55 @@ const MapContainer = () => {
   };
 
   const handleSave = async () => {
-  if (!metaData) return;
+    if (!metaData) return;
 
-  fitMapToPath();
-  await new Promise((r) => setTimeout(r, 1000));
-  const imageDataUrl = await captureMapAsImage();
-  const imageBlob = await (await fetch(imageDataUrl)).blob();
+    fitMapToPath();
+    await new Promise((r) => setTimeout(r, 1000));
+    const imageDataUrl = await captureMapAsImage();
+    const imageBlob = await (await fetch(imageDataUrl)).blob();
 
-  const formData = new FormData();
+    const formData = new FormData();
+    formData.append("image", imageBlob, "thumbnail.png");
 
-  // ✅ 이미지 추가
-  formData.append("image", imageBlob, "thumbnail.png");
+    const dataPayload = {
+      distance: distance.toFixed(2),
+      time: elapsedTime,
+      pace: averagePace,
+      pathGeoJson: metaData.pathGeoJson,
+      startedTime: metaData.startedTime,
+      endedTime: metaData.endedTime,
+      startLatitude: metaData.start.lat,
+      startLongitude: metaData.start.lng,
+      endLatitude: metaData.end.lat,
+      endLongitude: metaData.end.lng,
+    };
 
-  // ✅ 기록 정보 묶기
-  const dataPayload = {
-    distance: distance.toFixed(2),
-    time: elapsedTime,
-    pace: averagePace,
-    pathGeoJson: metaData.pathGeoJson,
-    startedTime: metaData.startedTime,
-    endedTime: metaData.endedTime,
-    startLatitude: metaData.start.lat,
-    startLongitude: metaData.start.lng,
-    endLatitude: metaData.end.lat,
-    endLongitude: metaData.end.lng,
+    if (courseId) {
+      dataPayload.followedCourseId = courseId;
+    }
+
+    formData.append("data", new Blob([JSON.stringify(dataPayload)], { type: "application/json" }));
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch("http://localhost:8080/running-record", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("서버 응답 실패");
+      alert("✅ 러닝 기록이 저장되었습니다!");
+      setShowSummary(false);
+      navigate("/myrecords");
+    } catch (error) {
+      console.error("❌ 저장 실패:", error.message);
+      alert("⚠️ 저장 실패! 복구 기능이 활성화됩니다.");
+      localStorage.setItem("unsavedRun", JSON.stringify(metaData));
+    }
   };
-
-  if (courseId) {
-    dataPayload.followedCourseId = courseId;
-  }
-
-  formData.append(
-    "data",
-    new Blob([JSON.stringify(dataPayload)], { type: "application/json" })
-  );
-
-  try {
-    const token = localStorage.getItem("accessToken");
-    const response = await fetch("http://localhost:8080/running-record", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) throw new Error("서버 응답 실패");
-    alert("✅ 러닝 기록이 저장되었습니다!");
-    setShowSummary(false);
-    navigate("/myrecords");
-  } catch (error) {
-    console.error("❌ 저장 실패:", error.message);
-    alert("⚠️ 저장 실패! 복구 기능이 활성화됩니다.");
-    localStorage.setItem("unsavedRun", JSON.stringify(metaData));
-  } 
-};
-
 
   const handleCancel = () => {
     alert("❌ 기록이 저장되지 않았습니다. 해당 러닝은 경험치에 반영되지 않습니다.");
@@ -152,34 +151,32 @@ const MapContainer = () => {
       if (!res.ok) throw new Error("친구 위치 불러오기 실패");
 
       const data = await res.json();
-      friendMarkersRef.current.forEach(marker => marker.setMap(null));
+      friendMarkersRef.current.forEach((marker) => marker.setMap(null));
 
-      const newMarkers = data.map(friend => {
-      const position = new window.kakao.maps.LatLng(friend.latitude, friend.longitude);
+      const newMarkers = data.map((friend) => {
+        const position = new window.kakao.maps.LatLng(friend.latitude, friend.longitude);
 
-    // 마커 생성
-      const marker = new window.kakao.maps.Marker({
-        position,
-        map: mapRef.current,
-        title: friend.nickname,
-        image: new window.kakao.maps.MarkerImage(
-          "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_blue.png",
-          new window.kakao.maps.Size(24, 35),
-          { offset: new window.kakao.maps.Point(12, 35) }
-        ),
-      });
+        const marker = new window.kakao.maps.Marker({
+          position,
+          map: mapRef.current,
+          title: friend.nickname,
+          image: new window.kakao.maps.MarkerImage(
+            "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_blue.png",
+            new window.kakao.maps.Size(24, 35),
+            { offset: new window.kakao.maps.Point(12, 35) }
+          ),
+        });
 
-    // ✅ InfoWindow 생성
-      const infoWindow = new window.kakao.maps.InfoWindow({
-        content: `<div style="padding:6px 12px;font-size:14px;">👟 ${friend.nickname}</div>`,
-      });
+        const infoWindow = new window.kakao.maps.InfoWindow({
+          content: `<div style="padding:6px 12px;font-size:14px;">👟 ${friend.nickname}</div>`,
+        });
 
-    // ✅ 마커 클릭 시 InfoWindow 표시
-      window.kakao.maps.event.addListener(marker, "click", () => {
-        infoWindow.open(mapRef.current, marker);
-      });
+        window.kakao.maps.event.addListener(marker, "click", () => {
+          infoWindow.open(mapRef.current, marker);
+        });
+
         return marker;
-    });
+      });
 
       friendMarkersRef.current = newMarkers;
     } catch (err) {
@@ -274,14 +271,49 @@ const MapContainer = () => {
   }, []);
 
   useEffect(() => {
-  const saved = localStorage.getItem("runningState");
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    if (parsed.isRunning) {
-      restoreRunningState(parsed); // useRunningTracker에서 받아온 함수
+    const saved = localStorage.getItem("runningState");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.isRunning) {
+        restoreRunningState(parsed);
+      }
     }
-  }
-}, []);
+  }, []);
+
+  useEffect(() => {
+    const fetchFriendLocations = async () => {
+      try {
+        const res = await authFetch("http://localhost:8080/friends/locations");
+        if (!res.ok) throw new Error("친구 위치 불러오기 실패");
+        const data = await res.json();
+        setFriendLocations(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (showFriendsOnMap) {
+      fetchFriendLocations();
+    }
+  }, [showFriendsOnMap]);
+
+  useEffect(() => {
+    if (!showFriendsOnMap || !mapRef.current || !window.kakao?.maps) return;
+
+    friendMarkersRef.current.forEach((marker) => marker.setMap(null));
+    friendMarkersRef.current = [];
+
+    const newMarkers = friendLocations.map(({ lat, lng, nickname }) => {
+      const marker = new window.kakao.maps.Marker({
+        position: new window.kakao.maps.LatLng(lat, lng),
+        map: mapRef.current,
+        title: nickname,
+      });
+      return marker;
+    });
+
+    friendMarkersRef.current = newMarkers;
+  }, [friendLocations, showFriendsOnMap]);
 
   return (
     <>
