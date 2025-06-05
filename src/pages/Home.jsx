@@ -30,10 +30,10 @@ const Home = () => {
 
     const fetchRecommendations = async () => {
       try {
-        const pos = await new Promise((resolve, reject) => {
+        /*const pos = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject);
         });
-        const { latitude, longitude } = pos.coords;
+        const { latitude, longitude } = pos.coords;*/
 
         const res = await authFetch(
           `http://localhost:8080/course?sortType=LIKE`
