@@ -33,7 +33,7 @@ const Courses = () => {
   };
 
   const toggleBookmark = async (courseId, isBookmarked) => {
-    const token = localStorage.getItem("access_token");
+    //co  nst token = localStorage.getItem("access_token");
 
     try {
       const res = await authFetch(
