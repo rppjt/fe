@@ -57,14 +57,14 @@
   margin-top: 0.5rem;
   padding: 0.3rem 0.6rem;
   font-size: 0.9rem;
-  background-color: #ffdddd;
+  background-color: #e5e7eb;
   border: 1px solid #ffaaaa;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .deleteButton:hover {
-  background-color: #ffcccc;
+  background-color: #d1d5db;
 }
 
 /* ✅ 썸네일 이미지 스타일 */

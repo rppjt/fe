@@ -9,20 +9,25 @@ import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
 import MyPage from "./pages/MyPage";
 import RecoverPage from "./pages/RecoverPage";
+import RunPage from "./pages/RunPage";
+import AppLayout from "./components/AppLayout";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LoginPage />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/login/callback" element={<LoginKakkoCallback />} />
-      <Route path="/my-records" element={<MyRecords />} />
-      <Route path="/my-records/:id" element={<DetailMyRecord />} />
-      <Route path="/courses" element={<Courses />} />
-      <Route path="/course/:id" element={<CourseDetail />} />
-      <Route path="/mypage" element={<MyPage />} />
-      <Route path="/recover" element={<RecoverPage />} />
-    </Routes>
+    <AppLayout>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/login/callback" element={<LoginKakkoCallback />} />
+        <Route path="/my-records" element={<MyRecords />} />
+        <Route path="/my-records/:id" element={<DetailMyRecord />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/course/:id" element={<CourseDetail />} />
+        <Route path="/mypage" element={<MyPage />} />
+        <Route path="/recover" element={<RecoverPage />} />
+        <Route path="/run" element={<RunPage />} />
+      </Routes>
+    </AppLayout>
   );
 }
 

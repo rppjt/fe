@@ -84,6 +84,20 @@ const DetailMyRecord = () => {
   return (
     <div className={styles.container}>
       <h2>📍 상세 러닝 기록</h2>
+      {record.thumbnailUrl && (
+        <img
+          src={record.thumbnailUrl}
+          alt="러닝 썸네일"
+          className={styles.thumbnail}
+          style={{
+          width: "100%",
+          maxHeight: "300px",
+          objectFit: "cover",
+          borderRadius: "10px",
+          marginBottom: "1rem"
+          }}
+        />
+      )}
       <div id="map" className={styles.map}></div>
       <div className={styles.recordDetail}>
         <p><strong>시작 시간:</strong> {new Date(record.startedTime).toLocaleString()}</p>

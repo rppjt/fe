@@ -11,6 +11,14 @@
   border: 1px solid #ccc;
 }
 
+/* 버튼들을 정렬할 래퍼 */
+.buttonGroup {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem; /* 버튼 사이 간격 */
+}
+
+/* 좋아요 버튼 */
 .likeButton {
   padding: 0.5rem 1rem;
   background-color: #ff6b81;
@@ -21,13 +29,32 @@
   cursor: pointer;
 }
 
-.followButton {
-  margin-top: 0.5rem;
-  background-color: #38bdf8;
-  color: white;
+.likeButton:hover {
+  background-color: #fa5c71;
+}
+
+/* 즐겨찾기 버튼 */
+.bookmarkButton {
   padding: 0.5rem 1rem;
+  background-color: #6c757d;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.bookmarkButton:hover {
+  background-color: #5a6268;
+}
+
+/* 따라가기 버튼 */
+.followButton {
+  padding: 0.5rem 1rem;
+  background-color: #38bdf8;
   border: none;
   border-radius: 6px;
+  color: white;
   font-weight: bold;
   cursor: pointer;
 }
