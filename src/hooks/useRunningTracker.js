@@ -20,8 +20,24 @@ export const useRunningTracker = (mapRef, markerRef) => {
     startedTimeRef.current = new Date().toISOString();
     setElapsedTime(0);
 
+    // ✅ 러닝 상태 저장
+    localStorage.setItem("runningState", JSON.stringify({
+      isRunning: true,
+      startedTime: startedTimeRef.current,
+      path: [],
+      elapsedTime: 0,
+    }));
+
     timerRef.current = setInterval(() => {
-      setElapsedTime((prev) => prev + 1);
+      setElapsedTime((prev) => {
+        const newTime = prev + 1;
+        const currentState = JSON.parse(localStorage.getItem("runningState"));
+        if (currentState) {
+          currentState.elapsedTime = newTime;
+          localStorage.setItem("runningState", JSON.stringify(currentState));
+        }
+        return newTime;
+      });
     }, 1000);
 
     watchIdRef.current = navigator.geolocation.watchPosition(
@@ -38,7 +54,18 @@ export const useRunningTracker = (mapRef, markerRef) => {
         markerRef.current?.setPosition(newLatLng);
         mapRef.current?.setCenter(newLatLng);
 
-        setPath((prev) => [...prev, { lat: latitude, lng: longitude }]);
+        setPath((prevPath) => {
+          const newPath = [...prevPath, { lat: latitude, lng: longitude }];
+
+          // ✅ 위치 갱신 후 로컬스토리지 갱신
+          const currentState = JSON.parse(localStorage.getItem("runningState"));
+          if (currentState) {
+            currentState.path = newPath;
+            localStorage.setItem("runningState", JSON.stringify(currentState));
+          }
+          return newPath;
+        });
+
         prevPositionRef.current = { lat: latitude, lng: longitude };
       },
       (error) => {
@@ -52,6 +79,29 @@ export const useRunningTracker = (mapRef, markerRef) => {
       }
     );
   };
+
+  const restoreRunningState = (savedState) => {
+    if (!savedState || !savedState.isRunning) return;
+
+    setIsRunning(true);
+    setElapsedTime(savedState.elapsedTime || 0);
+    setPath(savedState.path || []);
+    startedTimeRef.current = savedState.startedTime;
+
+    timerRef.current = setInterval(() => {
+      setElapsedTime((prev) => {
+        const newTime = prev + 1;
+        const currentState = JSON.parse(localStorage.getItem("runningState"));
+        if (currentState) {
+          currentState.elapsedTime = newTime;
+          localStorage.setItem("runningState", JSON.stringify(currentState));
+        }
+        return newTime;
+      });
+    }, 1000);
+  };
+
+
 
   const stopRunning = () => {
     if (watchIdRef.current) {
@@ -74,7 +124,8 @@ export const useRunningTracker = (mapRef, markerRef) => {
     const pathGeoJson = JSON.stringify(convertPathToGeoJSON(path));
 
     setElapsedTime(0); // ⏱️ 경과 시간 초기화
-
+    localStorage.removeItem("runningState");
+    
     return {
       start,
       end,
@@ -90,5 +141,6 @@ export const useRunningTracker = (mapRef, markerRef) => {
     elapsedTime,
     startRunning,
     stopRunning,
+    restoreRunningState,
   };
 };
