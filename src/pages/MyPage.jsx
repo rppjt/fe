@@ -46,7 +46,6 @@ const MyPage = () => {
           👥 친구들
           </button>
       </div>
-      console.log("현재 탭 상태:", tab);
       <div className={styles.content}>
         {tab === "records" && <MyRecords />}
         {tab === "recommended" && <MyRecommendedCourses />}
