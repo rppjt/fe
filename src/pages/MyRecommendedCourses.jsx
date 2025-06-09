@@ -33,14 +33,12 @@ const MyRecommendedCourses = () => {
   };
 
   const handleDelete = async (id) => {
-    const token = localStorage.getItem("accessToken");
     const confirm = window.confirm("정말 이 추천 코스를 삭제하시겠습니까?");
     if (!confirm) return;
 
     try {
       await authFetch(`http://localhost:8080/course/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       setCourses((prev) => prev.filter((c) => c.id !== id));

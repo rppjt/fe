@@ -11,6 +11,7 @@ import MyPage from "./pages/MyPage";
 import RecoverPage from "./pages/RecoverPage";
 import RunPage from "./pages/RunPage";
 import AppLayout from "./components/AppLayout";
+import Friends from "./pages/Friends";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/course/:id" element={<CourseDetail />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/recover" element={<RecoverPage />} />
+        <Route path="/friends" element={<Friends />} />
         <Route path="/run" element={<RunPage />} />
       </Routes>
     </AppLayout>

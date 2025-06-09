@@ -58,28 +58,36 @@ const DetailMyRecord = () => {
   if (!record) return <div className={styles.container}>로딩 중...</div>;
 
   const handleDelete = async () => {
+    if (!window.confirm("삭제 후 복구 페이지로 이동합니다. 계속할까요?")) return;
 
-  if (!window.confirm("삭제 후 복구 페이지로 이동합니다. 계속할까요?")) return; 
-    
-  try {
-    // 복구용 데이터를 로컬스토리지에 저장
-    localStorage.setItem("unsavedRun", JSON.stringify({
-      distance: record.totalDistance,
-      time: record.totalTime,
-      pace: record.pace
-    }));
+    try {
+      // 1. 로컬스토리지에 복구용 데이터 저장
+      const recoveryData = {
+        distance: record.totalDistance,
+        time: record.totalTime,
+        pace: record.pace,
+      };
+      localStorage.setItem("unsavedRun", JSON.stringify(recoveryData));
 
-    // 실제 서버에서 기록 삭제 (소프트 삭제로 PATCH 사용 중)
-    await authFetch(`http://localhost:8080/running-record/${record.id}/delete`, {
-      method: "PATCH",
-    });
+      // 2. API 요청 (DELETE)
+      const response = await authFetch(`http://localhost:8080/running-record/${record.id}`, {
+        method: "DELETE",
+      });
 
-    // 복구 페이지로 이동
-    navigate("/recover");
-  } catch (err) {
-    console.error("❌ 삭제 실패:", err);
-  }
-};
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`서버 응답 오류: ${response.status} - ${errorText}`);
+      }
+
+      // 3. 성공 시 복구 페이지로 이동
+      alert("✅ 삭제 완료! 복구 페이지로 이동합니다.");
+      navigate("/recover");
+    } catch (err) {
+      console.error("❌ 삭제 실패:", err);
+      alert("⚠️ 삭제 중 오류가 발생했습니다. 콘솔을 확인해주세요.");
+    }
+  };
+
 
   return (
     <div className={styles.container}>
