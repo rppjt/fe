@@ -28,16 +28,11 @@ const MyFavorites = () => {
   };
 
   const toggleBookmark = async (courseId) => {
-    const token = localStorage.getItem("accessToken");
-
     try {
-      const res = await fetch(
+      const res = await authFetch(
         `http://localhost:8080/course/bookmark/${courseId}`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 

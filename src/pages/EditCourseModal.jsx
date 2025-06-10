@@ -1,4 +1,4 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect} from "react";
 import styles from "./editCourseModal.module.css";
 import { useAuthFetch } from "../utils/useAuthFetch"; // 인증된 fetch 훅
 
@@ -15,12 +15,17 @@ const EditCourseModal = ({ course, onClose, onSave }) => {
   }, [course]);
 
   const handleSave = async () => {
+    if (
+      title === course.title &&
+      description === course.description &&
+      thumbnailUrl === course.thumbnailUrl
+    ) {
+      alert("변경된 내용이 없습니다.");
+      return;
+    }
     try {
       const res = await authFetch(`http://localhost:8080/course/${course.id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ title, description, thumbnailUrl }),
       });
 
@@ -49,8 +54,8 @@ const EditCourseModal = ({ course, onClose, onSave }) => {
         <input value={thumbnailUrl} onChange={(e) => setThumbnailUrl(e.target.value)} />
 
         <div className={styles.actions}>
-          <button onClick={onClose}>취소</button>
-          <button onClick={handleSave}>저장</button>
+          <button onClick={(e) => { e.stopPropagation(); handleSave(); }}>저장</button>
+          <button onClick={(e) => { e.stopPropagation(); onClose(); }}>취소</button>
         </div>
       </div>
     </div>

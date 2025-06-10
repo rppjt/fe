@@ -197,3 +197,8 @@ input:checked + .slider::before {
   border: 1px solid #eee;
   border-radius: 8px;
 }
+
+.friendList {
+  list-style: none;
+  padding: 0;
+}

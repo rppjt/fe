@@ -29,3 +29,15 @@ button:last-child {
   background-color: #d1d5db;
   color: white;
 }
+
+.thumbnailWrapper {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.thumbnail {
+  width: 300px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
