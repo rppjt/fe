@@ -1,16 +1,12 @@
-// src/pages/MyRecommendedCourses.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthFetch } from "../utils/useAuthFetch";
+import EditCourseModal from "../components/EditCourseModal"; // ✅ 추가
 import styles from "./myPage.module.css";
-
 
 const MyRecommendedCourses = () => {
   const [courses, setCourses] = useState([]);
-  const [editId, setEditId] = useState(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editDescription, setEditDescription] = useState("");
-  const [editThumbnail, setEditThumbnail] = useState("");
+  const [editId, setEditId] = useState(null); // ✅ 단일 ID로 관리
   const navigate = useNavigate();
   const authFetch = useAuthFetch();
 
@@ -33,12 +29,14 @@ const MyRecommendedCourses = () => {
   };
 
   const handleDelete = async (id) => {
+    const token = localStorage.getItem("accessToken");
     const confirm = window.confirm("정말 이 추천 코스를 삭제하시겠습니까?");
     if (!confirm) return;
 
     try {
       await authFetch(`http://localhost:8080/course/${id}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       setCourses((prev) => prev.filter((c) => c.id !== id));
@@ -50,51 +48,25 @@ const MyRecommendedCourses = () => {
 
   const handleEditStart = (course) => {
     setEditId(course.id);
-    setEditTitle(course.title);
-    setEditDescription(course.description || "");
-    setEditThumbnail(course.imageUrl || "");
-  };
-
-  const handleEditCancel = () => {
-    setEditId(null);
-    setEditTitle("");
-    setEditDescription("");
-    setEditThumbnail("");
-  };
-
-  const handleEditSubmit = async () => {
-    const token = localStorage.getItem("accessToken");
-
-    try {
-      const res = await fetch(`http://localhost:8080/course/${editId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title: editTitle,
-          description: editDescription,
-          thumbnailUrl: editThumbnail,
-        }),
-      });
-
-      if (!res.ok) throw new Error("수정 실패");
-
-      const updated = await res.json();
-      setCourses((prev) =>
-        prev.map((c) => (c.id === editId ? updated : c))
-      );
-      handleEditCancel();
-      alert("✏️ 추천 코스가 수정되었습니다");
-    } catch (err) {
-      console.error("❌ 수정 요청 실패:", err);
-    }
   };
 
   return (
     <div>
       <h2>🏃 내가 만든 추천 코스</h2>
+
+      {editId && (
+        <EditCourseModal
+          course={courses.find((c) => c.id === editId)}
+          onClose={() => setEditId(null)}
+          onSave={(updated) => {
+            setCourses((prev) =>
+              prev.map((c) => (c.id === updated.id ? updated : c))
+            );
+            setEditId(null);
+          }}
+        />
+      )}
+
       {courses.length === 0 ? (
         <p>아직 등록한 추천 코스가 없습니다.</p>
       ) : (
@@ -105,60 +77,31 @@ const MyRecommendedCourses = () => {
               className={styles.favoriteItem}
               onClick={() => handleClick(course.id)}
             >
-              {editId === course.id ? (
-                <div className={styles.editForm}>
-                  <input
-                    type="text"
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    placeholder="코스 제목"
-                  />
-                  <textarea
-                    rows="2"
-                    value={editDescription}
-                    onChange={(e) => setEditDescription(e.target.value)}
-                    placeholder="코스 설명"
-                  />
-                  <input
-                    type="text"
-                    value={editThumbnail}
-                    onChange={(e) => setEditThumbnail(e.target.value)}
-                    placeholder="썸네일 URL"
-                  />
-                  <div className={styles.editActions}>
-                    <button onClick={handleEditSubmit}>💾 저장</button>
-                    <button onClick={handleEditCancel}>❌ 취소</button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <p className={styles.courseTitle}>{course.title}</p>
-                  <p>{course.totalDistance} km | ❤️ {course.likes}</p>
-                  <p>{course.description || "설명이 없습니다."}</p>
-                  <img
-                    src={course.imageUrl || "/course-default-thumbnail.jpg"}
-                    alt={course.title}
-                    className={styles.thumbnail}
-                  />
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditStart(course);
-                    }}
-                  >
-                    ✏️ 수정
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(course.id);
-                    }}
-                    className={styles.deleteButton}
-                  >
-                    🗑️ 삭제
-                  </button>
-                </>
-              )}
+              <p className={styles.courseTitle}>{course.title}</p>
+              <p>{course.totalDistance} km | ❤️ {course.likes}</p>
+              <p>{course.description || "설명이 없습니다."}</p>
+              <img
+                src={course.imageUrl || "/course-default-thumbnail.jpg"}
+                alt={course.title}
+                className={styles.thumbnail}
+              />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEditStart(course);
+                }}
+              >
+                ✏️ 수정
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(course.id);
+                }}
+                className={styles.deleteButton}
+              >
+                🗑️ 삭제
+              </button>
             </li>
           ))}
         </ul>

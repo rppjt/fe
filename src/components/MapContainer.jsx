@@ -11,6 +11,7 @@ import RunSummary from "./summaries/RunSummary";
 import styles from "./MapContainer.module.css";
 import html2canvas from "html2canvas";
 import { useAuthFetch } from "../utils/useAuthFetch";
+import { useUploadFetch } from "../utils/useUploadFetch";
 
 const MapContainer = () => {
   const location = useLocation();
@@ -21,6 +22,7 @@ const MapContainer = () => {
   const friendMarkersRef = useRef([]);
   const navigate = useNavigate();
   const authFetch = useAuthFetch();
+  const uploadFetch = useUploadFetch();
 
   const [showSummary, setShowSummary] = useState(false);
   const [distance, setDistance] = useState(0);
@@ -111,14 +113,7 @@ const MapContainer = () => {
     formData.append("data", new Blob([JSON.stringify(dataPayload)], { type: "application/json" }));
 
     try {
-      const token = localStorage.getItem("accessToken");
-      const response = await fetch("http://localhost:8080/running-record", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await uploadFetch("http://localhost:8080/running-record", formData);
 
       if (!response.ok) throw new Error("서버 응답 실패");
       alert("✅ 러닝 기록이 저장되었습니다!");
@@ -127,7 +122,13 @@ const MapContainer = () => {
     } catch (error) {
       console.error("❌ 저장 실패:", error.message);
       alert("⚠️ 저장 실패! 복구 기능이 활성화됩니다.");
-      localStorage.setItem("unsavedRun", JSON.stringify(metaData));
+      localStorage.setItem("unsavedRun", JSON.stringify({
+        ...metaData,
+        distance: distance.toFixed(2),
+        time: elapsedTime,
+        pace: averagePace,
+        imageDataUrl, // ✅ 복구 시 필요한 이미지 캡처 포함
+      }));
     }
   };
 

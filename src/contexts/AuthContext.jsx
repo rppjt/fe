@@ -16,34 +16,6 @@ export const AuthProvider = ({ children }) => {
     }
     setAccessTokenState(token);
   };
-  /*
-  useEffect(() => {
-    const pathname = window.location.pathname;
-    
-    if (pathname === "/" || pathname === "/login") return;
-
-    // 자동 로그인 시도
-    const tryRefresh = async () => {
-      try {
-        const res = await fetch("http://localhost:8080/auth/refresh", {
-          method: "POST",
-          credentials: "include",
-        });
-
-        if (!res.ok) throw new Error("refresh 실패");
-
-        const data = await res.json();
-        setAccessToken(data.access_token);
-        console.log("✅ 자동 로그인 성공");
-      } catch (err) {
-        console.warn("❌ 자동 로그인 실패:", err);
-        setAccessToken(null);
-      }
-    };
-
-    tryRefresh();
-  }, []);
-  */
  useEffect(() => {
   const token = localStorage.getItem("accessToken");
   if (token) {
