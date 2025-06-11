@@ -7,13 +7,14 @@ import styles from "./courseDetail.module.css"; // ✅ CSS 모듈 적용
 const CourseDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { accessToken } = useAuth();
+  const { accessToken, user: currentUser } = useAuth();
   const authFetch = useAuthFetch();
 
   const [course, setCourse] = useState(null);
   const [error, setError] = useState(null);
 
   const fetchCourse = async () => {
+    console.log("🛫 fetchCourse 진입");
     try {
       const res = await authFetch(`http://localhost:8080/course/${id}`);
       if (res.status === 401) {
@@ -22,6 +23,7 @@ const CourseDetail = () => {
       }
       if (!res.ok) throw new Error("응답 실패");
       const data = await res.json();
+      console.log("✅ course 응답 데이터:", data)
       setCourse(data);
     } catch (err) {
       console.error("코스 정보 로딩 실패:", err);
@@ -89,12 +91,16 @@ const CourseDetail = () => {
       <p>📝 설명: {course.description || "설명이 없습니다."}</p>
 
       <div className={styles.buttonGroup}>
-        <button onClick={toggleLike} className={styles.likeButton}>
-          {course.isLiked ? "❤️ 좋아요 취소" : "🤍 좋아요"}
-        </button>
-        <button onClick={toggleBookmark} className={styles.bookmarkButton}>
-          {course.isBookmarked ? "⭐ 즐겨찾기 해제" : "☆ 즐겨찾기 추가"}
-        </button>
+        {currentUser && course.userId !== currentUser.id && (
+          <>
+            <button onClick={toggleLike} className={styles.likeButton}>
+              {course.isLiked ? "❤️ 좋아요 취소" : "🤍 좋아요"}
+            </button>
+            <button onClick={toggleBookmark} className={styles.bookmarkButton}>
+              {course.isBookmarked ? "⭐ 즐겨찾기 해제" : "☆ 즐겨찾기 추가"}
+            </button>
+          </>
+        )}
         <button
           className={styles.followButton}
           onClick={() => navigate(`/run?courseId=${course.id}`)}

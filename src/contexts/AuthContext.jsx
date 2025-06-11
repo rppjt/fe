@@ -6,7 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessTokenState] = useState(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
-
+  const [user, setUser] = useState(null);
 
   const setAccessToken = (token) => {
     if (token) {
@@ -16,16 +16,30 @@ export const AuthProvider = ({ children }) => {
     }
     setAccessTokenState(token);
   };
- useEffect(() => {
-  const token = localStorage.getItem("accessToken");
-  if (token) {
-    setAccessToken(token);
-  }
-  setIsAuthReady(true); // 복원 완료
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      setAccessToken(token);
+      // 🔽 사용자 정보 요청
+      fetch("http://localhost:8080/user", {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => setUser(data))
+        .catch((err) => {
+          console.error("❌ 사용자 정보 불러오기 실패:", err);
+          setUser(null);
+        });
+    }
+    setIsAuthReady(true);
   }, []);
 
   return (
-      <AuthContext.Provider value={{ accessToken, setAccessToken, isAuthReady }}>
+    <AuthContext.Provider
+      value={{ accessToken, setAccessToken, user, setUser, isAuthReady }}
+    >
       {children}
     </AuthContext.Provider>
   );
