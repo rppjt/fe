@@ -18,7 +18,7 @@ export const useAuthFetch = () => {
       } else {
         console.warn("🚫 토큰 없음 + refresh 실패 → 로그아웃");
         navigate("/");
-        return;
+        throw new Error("accessToken 없음 + refresh 실패");
       }
     }
 

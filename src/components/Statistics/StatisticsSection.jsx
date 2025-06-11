@@ -25,6 +25,8 @@ const StatisticsSection = () => {
         const weeklyData = await weeklyRes.json();
         const monthlyData = await monthlyRes.json();
 
+        console.log("🟡 weeklyData:", weeklyData);
+
         setPersonalStats(personalData);
         setWeeklyStats(weeklyData);
         setMonthlyStats(monthlyData);

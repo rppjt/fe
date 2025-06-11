@@ -5,20 +5,17 @@ import { useAuthFetch } from "../utils/useAuthFetch"; // 인증된 fetch 훅
 const EditCourseModal = ({ course, onClose, onSave }) => {
   const [title, setTitle] = useState(course.title || "");
   const [description, setDescription] = useState(course.description || "");
-  const [thumbnailUrl, setThumbnailUrl] = useState(course.thumbnailUrl || "");
   const authFetch = useAuthFetch();
 
   useEffect(() => {
     setTitle(course.title || "");
     setDescription(course.description || "");
-    setThumbnailUrl(course.thumbnailUrl || "");
   }, [course]);
 
   const handleSave = async () => {
     if (
       title === course.title &&
-      description === course.description &&
-      thumbnailUrl === course.thumbnailUrl
+      description === course.description
     ) {
       alert("변경된 내용이 없습니다.");
       return;
@@ -26,7 +23,7 @@ const EditCourseModal = ({ course, onClose, onSave }) => {
     try {
       const res = await authFetch(`http://localhost:8080/course/${course.id}`, {
         method: "PATCH",
-        body: JSON.stringify({ title, description, thumbnailUrl }),
+        body: JSON.stringify({ title, description }),
       });
 
       if (!res.ok) throw new Error("수정 실패");
@@ -49,9 +46,6 @@ const EditCourseModal = ({ course, onClose, onSave }) => {
 
         <label>설명</label>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-
-        <label>썸네일 URL</label>
-        <input value={thumbnailUrl} onChange={(e) => setThumbnailUrl(e.target.value)} />
 
         <div className={styles.actions}>
           <button onClick={(e) => { e.stopPropagation(); handleSave(); }}>저장</button>

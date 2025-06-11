@@ -35,7 +35,7 @@ const RunPage = () => {
     <div style={{ padding: "1rem" }}>
       <h2>🏃 추천 코스 따라 달리기</h2>
       {course && (
-        <p>📍 <strong>{course.user?.name || course.user?.email}</strong> 님이 만든 코스입니다</p>
+        <p>📍 <strong>{course.userName}</strong> 님이 만든 코스입니다</p>
       )}
       <MapContainer courseId={courseId} />
     </div>
