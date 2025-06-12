@@ -21,6 +21,7 @@ const MapContainer = () => {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const friendMarkersRef = useRef([]);
+  const coursePolylineRef = useRef(null);
   const navigate = useNavigate();
   const authFetch = useAuthFetch();
   const uploadFetch = useUploadFetch();
@@ -30,6 +31,7 @@ const MapContainer = () => {
   const [distance, setDistance] = useState(0);
   const [averagePace, setAveragePace] = useState("");
   const [metaData, setMetaData] = useState(null);
+  const [offCourseWarning, setOffCourseWarning] = useState(false);
 
   useKakaoMap({ mapRef, markerRef, containerRef });
 
@@ -42,7 +44,6 @@ const MapContainer = () => {
     restoreRunningState,
   } = useRunningTracker(mapRef, markerRef);
 
-  // ✅ 위치 업데이트 API 호출 함수
   const updateUserLocation = async (lat, lng) => {
     try {
       await authFetch("http://localhost:8080/location", {
@@ -56,15 +57,28 @@ const MapContainer = () => {
     }
   };
 
-  // ✅ 러닝 중일 때 30초마다 위치 업데이트
   useEffect(() => {
     if (!isRunning) return;
     const interval = setInterval(() => {
       if (path.length > 0) {
         const latest = path[path.length - 1];
         updateUserLocation(latest.lat, latest.lng);
+
+        // ✅ 이탈 여부 판단 (유도선에서 30m 이상 떨어진 경우)
+        if (coursePolylineRef.current) {
+          const distanceToPath = coursePolylineRef.current.getPath().reduce((min, latlng) => {
+            const d = getDistanceFromLatLonInMeters(latlng.getLat(), latlng.getLng(), latest.lat, latest.lng);
+            return Math.min(min, d);
+          }, Infinity);
+
+          if (distanceToPath > 30) {
+            setOffCourseWarning(true);
+          } else {
+            setOffCourseWarning(false);
+          }
+        }
       }
-    }, 30000); // 30초
+    }, 5000);
     return () => clearInterval(interval);
   }, [isRunning, path]);
 
@@ -160,11 +174,45 @@ const MapContainer = () => {
     setShowSummary(false);
   };
 
-  // ✅ 친구 마커 표시 (10초마다 갱신)
+  useEffect(() => {
+    const drawCoursePolyline = async () => {
+      if (!courseId || !mapRef.current) return;
+      try {
+        const res = await authFetch(`http://localhost:8080/course/${courseId}`);
+        if (!res.ok) throw new Error("추천 코스 로딩 실패");
+        const data = await res.json();
+
+        const coords = data.coordinates || data.path || [];
+        if (!coords.length) return;
+
+        const kakaoCoords = coords.map(
+          ([lat, lng]) => new window.kakao.maps.LatLng(lat, lng)
+        );
+
+        const polyline = new window.kakao.maps.Polyline({
+          path: kakaoCoords,
+          strokeWeight: 5,
+          strokeColor: "#00A8FF",
+          strokeOpacity: 0.8,
+          strokeStyle: "solid",
+        });
+
+        polyline.setMap(mapRef.current);
+        coursePolylineRef.current = polyline;
+      } catch (err) {
+        console.error("❌ 유도선 로딩 실패:", err);
+      }
+    };
+
+    drawCoursePolyline();
+    return () => {
+      if (coursePolylineRef.current) coursePolylineRef.current.setMap(null);
+    };
+  }, [courseId]);
+
   useEffect(() => {
     const fetchNearbyFriends = async () => {
       if (!showFriendsOnMap || !mapRef.current) return;
-
       try {
         const res = await authFetch("http://localhost:8080/friends/nearby?radius=0.5");
         if (!res.ok) throw new Error("친구 목록 가져오기 실패");
@@ -224,6 +272,9 @@ const MapContainer = () => {
         <div ref={containerRef} id="map" className={styles.map}></div>
         {isRunning && (
           <div className={styles.timer}>⏱️ {formatElapsedTime(elapsedTime)}</div>
+        )}
+        {offCourseWarning && (
+          <div className={styles.warning}>⚠️ 경로를 벗어났습니다! 유도선을 따라가세요.</div>
         )}
       </div>
 
