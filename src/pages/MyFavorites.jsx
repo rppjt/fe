@@ -34,7 +34,7 @@ const MyFavorites = () => {
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ isBookmarked: true }), // ✅ 반드시 포함해야 함
+          body: JSON.stringify({ isBookmarked: false }), // ✅ 반드시 포함해야 함
         }
       );
 
