@@ -1,5 +1,5 @@
 // src/components/MapContainer.jsx
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useKakaoMap } from "../hooks/useKakaoMap";
 import { useRunningTracker } from "../hooks/useRunningTracker";
@@ -26,6 +26,7 @@ const MapContainer = () => {
   const authFetch = useAuthFetch();
   const uploadFetch = useUploadFetch();
   const { showFriendsOnMap } = useLocationContext();
+  const [mapReady, setMapReady] = useState(false);
 
   const [showSummary, setShowSummary] = useState(false);
   const [distance, setDistance] = useState(0);
@@ -33,7 +34,18 @@ const MapContainer = () => {
   const [metaData, setMetaData] = useState(null);
   const [offCourseWarning, setOffCourseWarning] = useState(false);
 
-  useKakaoMap({ mapRef, markerRef, containerRef });
+  const handleMapReady = useCallback(() => {
+    console.log("✅ onMapReady() 호출됨");
+    setMapReady(true);
+  }, []);
+
+
+  useKakaoMap({
+    mapRef,
+    markerRef,
+    containerRef,
+    onMapReady: handleMapReady, // ✅ 고정된 함수 전달
+  });
 
   const {
     isRunning,
@@ -71,7 +83,10 @@ const MapContainer = () => {
             return Math.min(min, d);
           }, Infinity);
 
+          console.log("📏 실시간 유도선 거리:", distanceToPath);
+
           if (distanceToPath > 30) {
+            console.log("⚠️ 실시간 경로 이탈 감지됨");
             setOffCourseWarning(true);
           } else {
             setOffCourseWarning(false);
@@ -82,6 +97,45 @@ const MapContainer = () => {
     return () => clearInterval(interval);
   }, [isRunning, path]);
 
+  // 🔁 [시뮬레이션] 더미 위치 좌표 테스트용 (30분 뒤 제거 예정)
+  useEffect(() => {
+    if (!isRunning || !coursePolylineRef.current) return;
+    const dummyPath = [
+      { lat: 37.5000, lng: 127.0000 },
+      { lat: 37.5050, lng: 127.0050 },
+      { lat: 37.5100, lng: 127.0100 },
+      { lat: 37.5150, lng: 127.0150 },
+      { lat: 37.5200, lng: 127.1000 },
+    ];
+
+    let idx = 0;
+    const interval = setInterval(() => {
+      if (idx >= dummyPath.length) {
+        clearInterval(interval);
+        return;
+      }
+
+      const point = dummyPath[idx];
+      const latlng = new window.kakao.maps.LatLng(point.lat, point.lng);
+      markerRef.current.setPosition(latlng);
+      mapRef.current.panTo(latlng);
+      path.push({ lat: point.lat, lng: point.lng });
+
+      if (coursePolylineRef.current) {
+        const distanceToPath = coursePolylineRef.current.getPath().reduce((min, latlng) => {
+          const d = getDistanceFromLatLonInMeters(latlng.getLat(), latlng.getLng(), point.lat, point.lng);
+          return Math.min(min, d);
+        }, Infinity);
+        console.log("📏 유도선 거리:", distanceToPath);
+        setOffCourseWarning(distanceToPath > 30);
+      }
+
+      idx++;
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [isRunning,  coursePolylineRef.current]);
+  //
   const handleStop = () => {
     const result = stopRunning();
     if (!result || !path || path.length === 0) {
@@ -175,25 +229,54 @@ const MapContainer = () => {
   };
 
   useEffect(() => {
+    console.log("🌀 [useEffect] mapReady:", mapReady, "| courseId:", courseId);
     const drawCoursePolyline = async () => {
-      if (!courseId || !mapRef.current) return;
+      console.log("🧭 drawCoursePolyline 실행됨, courseId:", courseId);
+      console.log("📍 현재 location.search:", location.search); // ?courseId=1
+      if (!courseId || !mapRef.current){
+        console.warn("❌ courseId 또는 mapRef.current 없음");
+        return;
+      }
+
       try {
         const res = await authFetch(`http://localhost:8080/course/${courseId}`);
+        console.log("✅ 응답 상태:", res.status);
         if (!res.ok) throw new Error("추천 코스 로딩 실패");
+
         const data = await res.json();
+        console.log("📦 받아온 데이터:", data);
 
-        const coords = data.coordinates || data.path || [];
-        if (!coords.length) return;
+        // 🔍 pathGeoJson 문자열이면 파싱
+        if (typeof data.pathGeoJson === "string") {
+          try {
+            data.pathGeoJson = JSON.parse(data.pathGeoJson);
+            console.log("🧩 pathGeoJson 파싱 완료:", data.pathGeoJson);
+          } catch (e) {
+            console.error("❌ pathGeoJson JSON 파싱 실패:", e);
+          }
+        }
 
+        // ✅ 좌표 추출 우선순위: coordinates > path > pathGeoJson.coordinates
+        const coords =
+          data.coordinates || data.path || data.pathGeoJson?.coordinates || [];
+
+        if (!coords.length) {
+          console.warn("❌ 유도선 좌표가 비어있음:", data);
+          return;
+        }
+
+        console.log("📍 course coordinates", coords);
+
+        // ✅ 경도, 위도 순서로 된 좌표를 위도, 경도 순서로 변환
         const kakaoCoords = coords.map(
-          ([lat, lng]) => new window.kakao.maps.LatLng(lat, lng)
+          ([lng, lat]) => new window.kakao.maps.LatLng(lat, lng)
         );
 
         const polyline = new window.kakao.maps.Polyline({
           path: kakaoCoords,
           strokeWeight: 5,
-          strokeColor: "#00A8FF",
-          strokeOpacity: 0.8,
+          strokeColor: "#FF6F61",
+          strokeOpacity: 0.7,
           strokeStyle: "solid",
         });
 
@@ -204,11 +287,16 @@ const MapContainer = () => {
       }
     };
 
+    if (mapReady && courseId) {
     drawCoursePolyline();
-    return () => {
-      if (coursePolylineRef.current) coursePolylineRef.current.setMap(null);
-    };
-  }, [courseId]);
+    }
+
+  }, [mapReady,courseId]);
+
+  useEffect(() => {
+    console.log("🧪 mapReady 상태 변화 감지:", mapReady);
+  }, [mapReady]);
+
 
   useEffect(() => {
     const fetchNearbyFriends = async () => {
