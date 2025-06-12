@@ -97,15 +97,15 @@ const MapContainer = () => {
     return () => clearInterval(interval);
   }, [isRunning, path]);
 
-  // 🔁 [시뮬레이션] 더미 위치 좌표 테스트용 (30분 뒤 제거 예정)
-  useEffect(() => {
+  /* 🔁 [시뮬레이션] 더미 위치 좌표 테스트용 
+    useEffect(() => {
     if (!isRunning || !coursePolylineRef.current) return;
     const dummyPath = [
       { lat: 37.5000, lng: 127.0000 },
       { lat: 37.5050, lng: 127.0050 },
       { lat: 37.5100, lng: 127.0100 },
       { lat: 37.5150, lng: 127.0150 },
-      { lat: 37.5200, lng: 127.1000 },
+      { lat: 37.5200, lng: 127.0400 }, // 유도선에서 벗어나는 지점 (.1000변경)
     ];
 
     let idx = 0;
@@ -135,7 +135,7 @@ const MapContainer = () => {
 
     return () => clearInterval(interval);
   }, [isRunning,  coursePolylineRef.current]);
-  //
+  */
   const handleStop = () => {
     const result = stopRunning();
     if (!result || !path || path.length === 0) {
