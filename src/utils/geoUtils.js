@@ -31,8 +31,8 @@ export function calculateDistanceFromPath(path) {
   const toRad = (value) => (value * Math.PI) / 180;
   let total = 0;
   for (let i = 1; i < path.length; i++) {
-    const [lat1, lng1] = path[i - 1];
-    const [lat2, lng2] = path[i];
+    const { lat: lat1, lng: lng1 } = path[i - 1];
+    const { lat: lat2, lng: lng2 } = path[i];
     const R = 6371;
     const dLat = toRad(lat2 - lat1);
     const dLng = toRad(lng2 - lng1);

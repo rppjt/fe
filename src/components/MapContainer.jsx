@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useKakaoMap } from "../hooks/useKakaoMap";
 import { useRunningTracker } from "../hooks/useRunningTracker";
 import { formatElapsedTime, formatPace } from "../utils/timeUtils";
-import { calculateDistanceFromPath } from "../utils/geoUtils";
+import { calculateDistanceFromPath, getDistanceFromLatLonInMeters } from "../utils/geoUtils";
 import StartButton from "./buttons/StartButton";
 import StopButton from "./buttons/StopButton";
 import RunSummary from "./summaries/RunSummary";
@@ -12,6 +12,7 @@ import styles from "./MapContainer.module.css";
 import html2canvas from "html2canvas";
 import { useAuthFetch } from "../utils/useAuthFetch";
 import { useUploadFetch } from "../utils/useUploadFetch";
+import { useLocationContext } from "../contexts/LocationContext";
 
 const MapContainer = () => {
   const location = useLocation();
@@ -23,15 +24,12 @@ const MapContainer = () => {
   const navigate = useNavigate();
   const authFetch = useAuthFetch();
   const uploadFetch = useUploadFetch();
+  const { showFriendsOnMap } = useLocationContext();
 
   const [showSummary, setShowSummary] = useState(false);
   const [distance, setDistance] = useState(0);
   const [averagePace, setAveragePace] = useState("");
   const [metaData, setMetaData] = useState(null);
-  const [showFriendsOnMap] = useState(() => {
-    const stored = localStorage.getItem("showFriendsOnMap");
-    return stored === null ? true : stored === "true";
-  });
 
   useKakaoMap({ mapRef, markerRef, containerRef });
 
@@ -114,7 +112,6 @@ const MapContainer = () => {
 
     try {
       const response = await uploadFetch("http://localhost:8080/running-record", formData);
-
       if (!response.ok) throw new Error("서버 응답 실패");
       alert("✅ 러닝 기록이 저장되었습니다!");
       setShowSummary(false);
@@ -127,7 +124,7 @@ const MapContainer = () => {
         distance: distance.toFixed(2),
         time: elapsedTime,
         pace: averagePace,
-        imageDataUrl, // ✅ 복구 시 필요한 이미지 캡처 포함
+        imageDataUrl,
       }));
     }
   };
@@ -142,7 +139,7 @@ const MapContainer = () => {
       if (!showFriendsOnMap || !mapRef.current) return;
 
       try {
-        const res = await authFetch("http://localhost:8080/friends/nearby");
+        const res = await authFetch("http://localhost:8080/friends/nearby?radius=0.5");
         if (!res.ok) throw new Error("친구 목록 가져오기 실패");
         const data = await res.json();
 
@@ -155,17 +152,23 @@ const MapContainer = () => {
         const centerLat = center.getLat();
         const centerLng = center.getLng();
 
-        data.forEach(({ latitude, longitude, nickname }) => {
-          const distance = Math.sqrt(
-            Math.pow(latitude - centerLat, 2) + Math.pow(longitude - centerLng, 2)
-          );
+        data.forEach(({ latitude, longitude, nickname, profileImage }) => {
+          const distance = getDistanceFromLatLonInMeters(centerLat, centerLng, latitude, longitude);
 
-          if (distance <= 0.005) {
+          if (distance <= 500) {
+            const markerImage = new window.kakao.maps.MarkerImage(
+              profileImage || "/default-profile.png",
+              new window.kakao.maps.Size(40, 40),
+              { offset: new window.kakao.maps.Point(20, 20) }
+            );
+
             const marker = new window.kakao.maps.Marker({
               position: new window.kakao.maps.LatLng(latitude, longitude),
               map: mapRef.current,
               title: nickname,
+              image: markerImage,
             });
+
             friendMarkersRef.current.push(marker);
           }
         });

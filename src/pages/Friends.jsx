@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { useAuthFetch } from "../utils/useAuthFetch";
+import { useLocationContext } from "../contexts/LocationContext";
 import styles from "./myPage.module.css";
 
 const Friends = () => {
   const authFetch = useAuthFetch();
+  const { isSharing, toggleSharing, showFriendsOnMap, toggleShowFriends } = useLocationContext();
+
   const [friends, setFriends] = useState([]);
   const [receivedRequests, setReceivedRequests] = useState([]);
   const [sentRequests, setSentRequests] = useState([]);
   const [error, setError] = useState("");
 
-  // 친구 목록 및 요청 정보 불러오기
+  // 친구 목록 및 요청 정보 불러오기 (위치 공유는 Context가 알아서 처리함)
   const fetchAllData = async () => {
     try {
       const [friendsRes, receivedRes, sentRes] = await Promise.all([
@@ -46,7 +49,6 @@ const Friends = () => {
       const res = await authFetch(`http://localhost:8080/friends/request/accept/${requesterId}`, {
         method: "POST",
       });
-
       if (!res.ok) throw new Error("수락 실패");
       alert("✅ 친구 요청을 수락했습니다.");
       fetchAllData();
@@ -60,7 +62,6 @@ const Friends = () => {
       const res = await authFetch(`http://localhost:8080/friends/request/reject/${requesterId}`, {
         method: "POST",
       });
-
       if (!res.ok) throw new Error("거절 실패");
       alert("🚫 친구 요청을 거절했습니다.");
       fetchAllData();
@@ -71,12 +72,10 @@ const Friends = () => {
 
   const handleDelete = async (friendId) => {
     if (!window.confirm("정말 친구를 삭제하시겠습니까?")) return;
-
     try {
       const res = await authFetch(`http://localhost:8080/friends/${friendId}`, {
         method: "DELETE",
       });
-
       if (!res.ok) throw new Error("삭제 실패");
       alert("🗑️ 친구가 삭제되었습니다.");
       fetchAllData();
@@ -88,6 +87,29 @@ const Friends = () => {
   return (
     <div className={styles.container}>
       <h2>👥 친구 목록</h2>
+
+      <div className={styles.toggleContainer}>
+        <label className={styles.switch}>
+          <input
+            type="checkbox"
+            checked={isSharing}
+            onChange={toggleSharing}
+          />
+          <span className={styles.slider}></span>
+        </label>
+        <span className={styles.toggleLabel}>📡 내 위치 공유</span>
+
+        <label className={styles.switch}>
+          <input
+            type="checkbox"
+            checked={showFriendsOnMap}
+            onChange={toggleShowFriends}
+          />
+          <span className={styles.slider}></span>
+        </label>
+        <span className={styles.toggleLabel}>🗺️ 친구 위치 보기</span>
+      </div>
+
       {friends.map((f) => (
         <div key={f.friendId} className={styles.friendCard}>
           <img src={f.profileImage} alt="프로필" className={styles.profileImg} />
