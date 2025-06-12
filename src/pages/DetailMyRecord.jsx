@@ -10,6 +10,7 @@ const DetailMyRecord = () => {
   const mapRef = useRef(null);
   const polylineRef = useRef(null);
   const [record, setRecord] = useState(null);
+  const [isRecommended, setIsRecommended] = useState(false);
   const authFetch = useAuthFetch();
   const navigate = useNavigate();
 
@@ -26,6 +27,20 @@ const DetailMyRecord = () => {
     };
 
     fetchRecord();
+  }, [id]);
+
+   // 추천 여부 확인
+  useEffect(() => {
+    const checkRecommendation = async () => {
+      try {
+        const res = await authFetch(`http://localhost:8080/course/check/${id}`);
+        const data = await res.json();
+        setIsRecommended(data.isRecommended);
+      } catch (err) {
+        console.error("❌ 추천 여부 확인 실패:", err);
+      }
+    };
+    checkRecommendation();
   }, [id]);
 
   useEffect(() => {
@@ -56,6 +71,26 @@ const DetailMyRecord = () => {
   }, [record]);
 
   if (!record) return <div className={styles.container}>로딩 중...</div>;
+
+  // 추천 등록 처리
+  const handleRecommend = async () => {
+    if (!window.confirm("이 기록을 추천코스로 등록하시겠습니까?")) return;
+
+    try {
+      const res = await authFetch(`http://localhost:8080/course`, {
+        method: "POST",
+        body: JSON.stringify({ recordId: parseInt(id) }),
+      });
+
+      if (!res.ok) throw new Error("추천 등록 실패");
+      alert("🚀 추천코스로 등록되었습니다!");
+      navigate("/courses");
+      setIsRecommended(true);
+    } catch (err) {
+      console.error("❌ 추천 등록 실패:", err);
+      alert("⚠️ 등록 중 오류가 발생했습니다.");
+    }
+  };
 
   const handleDelete = async () => {
     if (!window.confirm("삭제 후 복구 페이지로 이동합니다. 계속할까요?")) return;
@@ -114,6 +149,14 @@ const DetailMyRecord = () => {
         <p><strong>소요 시간:</strong> {Math.floor(record.totalTime / 60)}분 {record.totalTime % 60}초</p>
         <p><strong>페이스:</strong> {record.pace} 분/km</p>
       </div>
+
+      {/* ✅ 추천 등록 버튼 */}
+      {!isRecommended && (
+        <button onClick={handleRecommend} className={styles.recommendButton}>
+          🚀 추천코스 등록
+        </button>
+      )}
+
       {/* ✅ 삭제 버튼 */}
     <button onClick={handleDelete} className={styles.deleteButton}>
       🗑️ 기록 삭제

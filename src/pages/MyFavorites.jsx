@@ -32,7 +32,9 @@ const MyFavorites = () => {
       const res = await authFetch(
         `http://localhost:8080/course/bookmark/${courseId}`,
         {
-          method: "POST",
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isBookmarked: true }), // ✅ 반드시 포함해야 함
         }
       );
 

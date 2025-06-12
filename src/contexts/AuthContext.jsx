@@ -25,12 +25,13 @@ export const AuthProvider = ({ children }) => {
       fetch("http://localhost:8080/user", {
         headers: { Authorization: `Bearer ${token}` },
         credentials: "include",
-      })
+      })  
         .then((res) => res.json())
         .then((data) => setUser(data))
         .catch((err) => {
           console.error("❌ 사용자 정보 불러오기 실패:", err);
           setUser(null);
+          setIsAuthReady(true);
         });
     }
     setIsAuthReady(true);

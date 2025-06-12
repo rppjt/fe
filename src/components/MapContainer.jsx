@@ -42,6 +42,32 @@ const MapContainer = () => {
     restoreRunningState,
   } = useRunningTracker(mapRef, markerRef);
 
+  // ✅ 위치 업데이트 API 호출 함수
+  const updateUserLocation = async (lat, lng) => {
+    try {
+      await authFetch("http://localhost:8080/location", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ latitude: lat, longitude: lng }),
+      });
+      console.log("📡 위치 서버 전송 완료");
+    } catch (error) {
+      console.error("❌ 위치 업데이트 실패:", error);
+    }
+  };
+
+  // ✅ 러닝 중일 때 30초마다 위치 업데이트
+  useEffect(() => {
+    if (!isRunning) return;
+    const interval = setInterval(() => {
+      if (path.length > 0) {
+        const latest = path[path.length - 1];
+        updateUserLocation(latest.lat, latest.lng);
+      }
+    }, 30000); // 30초
+    return () => clearInterval(interval);
+  }, [isRunning, path]);
+
   const handleStop = () => {
     const result = stopRunning();
     if (!result || !path || path.length === 0) {
@@ -134,6 +160,7 @@ const MapContainer = () => {
     setShowSummary(false);
   };
 
+  // ✅ 친구 마커 표시 (10초마다 갱신)
   useEffect(() => {
     const fetchNearbyFriends = async () => {
       if (!showFriendsOnMap || !mapRef.current) return;
@@ -154,7 +181,6 @@ const MapContainer = () => {
 
         data.forEach(({ latitude, longitude, nickname, profileImage }) => {
           const distance = getDistanceFromLatLonInMeters(centerLat, centerLng, latitude, longitude);
-
           if (distance <= 500) {
             const markerImage = new window.kakao.maps.MarkerImage(
               profileImage || "/default-profile.png",

@@ -1,13 +1,12 @@
-// src/contexts/LocationContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
-import { useAuth } from "./AuthContext"; // ✅ accessToken 가져오기
+import { useAuth } from "./AuthContext";
 import { useAuthFetch } from "../utils/useAuthFetch";
 
 const LocationContext = createContext();
 
 export const LocationProvider = ({ children }) => {
   const authFetch = useAuthFetch();
-  const { accessToken } = useAuth(); // ✅ 추가
+  const { accessToken } = useAuth();
 
   const [isSharing, setIsSharing] = useState(false);
   const [showFriendsOnMap, setShowFriendsOnMap] = useState(() => {
@@ -15,9 +14,9 @@ export const LocationProvider = ({ children }) => {
     return stored === null ? true : stored === "true";
   });
 
-  // ✅ 서버에서 위치 공유 상태 가져오기
+  // ✅ 위치 공유 상태 불러오기
   useEffect(() => {
-    if (!accessToken) return; // ✅ accessToken 없으면 skip
+    if (!accessToken) return;
 
     const fetchSharingStatus = async () => {
       try {
@@ -31,24 +30,32 @@ export const LocationProvider = ({ children }) => {
     };
 
     fetchSharingStatus();
-  }, [accessToken]); // ✅ accessToken 변동 시에도 다시 시도
+  }, [accessToken]);
 
-  // ✅ 위치 공유 상태 서버에 반영
+  // ✅ 위치 공유 상태 토글 + 사용자 메시지 출력
   const toggleSharing = async () => {
     const next = !isSharing;
     try {
       const res = await authFetch("http://localhost:8080/location/sharing", {
         method: "PATCH",
-        body: JSON.stringify({ isSharing: next }), // ✅ 백엔드 DTO에 맞춤
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isSharing: next }),
       });
       if (!res.ok) throw new Error();
-      setIsSharing(next);
+
+      const result = await res.json(); // ✅ 응답 파싱
+      setIsSharing(result.isSharing);
+
+      // ✅ 사용자에게 메시지 출력
+      if (result.message) {
+        alert(result.message); // 👉 또는 toast(result.message)
+      }
     } catch (err) {
       console.error("📛 위치 공유 전송 실패:", err);
+      alert("❌ 위치 공유 상태 변경에 실패했습니다.");
     }
   };
 
-  // ✅ 친구 마커 보기 상태 (로컬 전용)
   const toggleShowFriends = () => {
     const next = !showFriendsOnMap;
     setShowFriendsOnMap(next);
