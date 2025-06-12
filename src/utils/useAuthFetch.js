@@ -9,32 +9,33 @@ export const useAuthFetch = () => {
   const authFetch = async (url, options = {}, retryCount = 0) => {
     let token = accessToken;
 
-    // 토큰이 없으면 refresh 시도
+    // token이 없으면 refresh 시도
     if (!token && retryCount === 0) {
       const refreshed = await tryRefreshToken();
       if (refreshed) {
         token = refreshed;
         setAccessToken(token);
       } else {
-        console.warn("🚫 토큰 없음 + refresh 실패 → 로그아웃");
-        navigate("/");
+        alert("세션이 만료되었습니다. 다시 로그인해주세요.");
+        navigate("/login");
         throw new Error("accessToken 없음 + refresh 실패");
       }
     }
 
+    const isFormData = options.body instanceof FormData;
     const config = {
       ...options,
       headers: {
         ...(options.headers || {}),
         ...(token && { Authorization: `Bearer ${token}` }),
-        "Content-Type": "application/json",
+        ...(!isFormData && { "Content-Type": "application/json" }),
       },
       credentials: "include",
     };
 
-    let res = await fetch(url, config);
+    const res = await fetch(url, config);
 
-    // 401일 경우 refresh 재시도
+    // 401: 토큰 만료 → refresh 시도
     if (res.status === 401 && retryCount < maxRetry) {
       try {
         const newToken = await tryRefreshToken();
@@ -47,23 +48,34 @@ export const useAuthFetch = () => {
           headers: {
             ...(options.headers || {}),
             Authorization: `Bearer ${newToken}`,
-            "Content-Type": "application/json",
+            ...(!isFormData && { "Content-Type": "application/json" }),
           },
           credentials: "include",
         };
 
         return await authFetch(url, retryConfig, retryCount + 1);
       } catch (err) {
-        console.error("❌ refresh 실패 또는 재요청 실패 → 로그아웃",err);
-        navigate("/");
+        console.error("❌ refresh 실패 또는 재요청 실패 → 로그아웃", err);
+        alert("세션이 만료되었습니다. 다시 로그인해주세요.");
+        navigate("/login");
         throw err || new Error("authFetch 실패");
+      }
+    }
+
+    // 다른 에러 처리
+    if (!res.ok) {
+      try {
+        const errorData = await res.json();
+        throw new Error(errorData.message || `HTTP ${res.status} 에러 발생`);
+      } catch (parseError) {
+        console.error('응답 파싱 실패:', parseError);
+        throw new Error(`HTTP ${res.status}: 응답 파싱 실패`);
       }
     }
 
     return res;
   };
 
-  // 🔁 refresh 요청 시도 함수
   const tryRefreshToken = async () => {
     try {
       const res = await fetch("http://localhost:8080/auth/refresh", {
@@ -83,3 +95,4 @@ export const useAuthFetch = () => {
 
   return authFetch;
 };
+
