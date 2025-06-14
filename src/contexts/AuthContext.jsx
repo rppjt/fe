@@ -20,13 +20,19 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      setIsAuthReady(true); // 토큰 없으면 바로 true
+      setUser(null);
+      setIsAuthReady(true);
       return;
     }
 
     setAccessToken(token);
+
+    // ✅ 여기서는 authFetch 대신 직접 fetch 사용해야 함
     fetch("http://localhost:8080/user", {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
       credentials: "include",
     })
       .then((res) => {
@@ -36,7 +42,7 @@ export const AuthProvider = ({ children }) => {
       .then((data) => {
         console.log("✅ 사용자 정보 불러오기 성공:", data);
         setUser(data);
-        setIsAuthReady(true); // 🔥 반드시 setUser 이후
+        setIsAuthReady(true);
       })
       .catch((err) => {
         console.error("❌ 사용자 정보 로딩 실패:", err);

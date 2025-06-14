@@ -39,9 +39,9 @@ const Courses = () => {
       const res = await authFetch(
         `http://localhost:8080/course/bookmark/${courseId}`,
         {
-          method: "POST",
-        }
-      );
+        method: "PATCH", // ✅ PATCH로 수정
+        body: JSON.stringify({ isBookmarked: !isBookmarked }),
+      });
 
       if (!res.ok) throw new Error("즐겨찾기 요청 실패");
 

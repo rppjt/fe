@@ -12,22 +12,82 @@ import RecoverPage from "./pages/RecoverPage";
 import RunPage from "./pages/RunPage";
 import AppLayout from "./components/AppLayout";
 import { LocationProvider } from "./contexts/LocationContext";
+import ProtectedRoute from "./components/ProtectedRoute"; // ✅ 추가
 
 function App() {
   return (
     <LocationProvider>
       <AppLayout>
         <Routes>
+          {/* ❌ 로그인 관련 경로 (보호 안 함) */}
           <Route path="/" element={<LoginPage />} />
-          <Route path="/home" element={<Home />} />
           <Route path="/login/callback" element={<LoginKakkoCallback />} />
-          <Route path="/my-records" element={<MyRecords />} />
-          <Route path="/my-records/:id" element={<DetailMyRecord />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/course/:id" element={<CourseDetail />} />
-          <Route path="/mypage" element={<MyPage />} />
-          <Route path="/recover" element={<RecoverPage />} />
-          <Route path="/run" element={<RunPage />} />
+
+          {/* ✅ 보호된 경로들 */}
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-records"
+            element={
+              <ProtectedRoute>
+                <MyRecords />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-records/:id"
+            element={
+              <ProtectedRoute>
+                <DetailMyRecord />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/courses"
+            element={
+              <ProtectedRoute>
+                <Courses />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/course/:id"
+            element={
+              <ProtectedRoute>
+                <CourseDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mypage"
+            element={
+              <ProtectedRoute>
+                <MyPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/recover"
+            element={
+              <ProtectedRoute>
+                <RecoverPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/run"
+            element={
+              <ProtectedRoute>
+                <RunPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </AppLayout>
     </LocationProvider>
