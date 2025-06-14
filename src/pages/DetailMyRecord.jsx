@@ -34,10 +34,12 @@ const DetailMyRecord = () => {
     const checkRecommendation = async () => {
       try {
         const res = await authFetch(`http://localhost:8080/course/check/${id}`);
+        console.log("🔎 진입한 기록 ID:", id);
         const data = await res.json();
         setIsRecommended(data.isRecommended);
       } catch (err) {
         console.error("❌ 추천 여부 확인 실패:", err);
+        setIsRecommended(false);
       }
     };
     checkRecommendation();

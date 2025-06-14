@@ -73,7 +73,10 @@ const CourseDetail = () => {
   const toggleBookmark = async () => {
     try {
       const res = await authFetch(`http://localhost:8080/course/bookmark/${id}`, {
-        method: "POST",
+        method: "PATCH", // ✅ PATCH로 변경
+        body: JSON.stringify({
+          isBookmarked: !course.isBookmarked, // ✅ 서버가 요구하는 JSON 키 사용
+        }),
       });
 
       if (!res.ok) throw new Error("북마크 요청 실패");

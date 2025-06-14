@@ -302,7 +302,7 @@ const MapContainer = () => {
     const fetchNearbyFriends = async () => {
       if (!showFriendsOnMap || !mapRef.current) return;
       try {
-        const res = await authFetch("http://localhost:8080/friends/nearby?radius=0.5");
+        const res = await authFetch("http://localhost:8080/location/nearby?radius=0.5");
         if (!res.ok) throw new Error("친구 목록 가져오기 실패");
         const data = await res.json();
 
