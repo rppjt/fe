@@ -97,7 +97,7 @@ const MapContainer = () => {
     return () => clearInterval(interval);
   }, [isRunning, path]);
 
-  /* 🔁 [시뮬레이션] 더미 위치 좌표 테스트용 
+  // 🔁 [시뮬레이션] 더미 위치 좌표 테스트용 
     useEffect(() => {
     if (!isRunning || !coursePolylineRef.current) return;
     const dummyPath = [
@@ -135,7 +135,7 @@ const MapContainer = () => {
 
     return () => clearInterval(interval);
   }, [isRunning,  coursePolylineRef.current]);
-  */
+  //
   const handleStop = () => {
     const result = stopRunning();
     if (!result || !path || path.length === 0) {
