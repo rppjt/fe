@@ -60,7 +60,7 @@ const MyFavorites = () => {
               className={styles.favoriteItem}
               onClick={() => handleClick(course.courseId)}
             >
-              <p className={styles.courseTitle}>{course.title}</p>
+              <p className={styles.endLocationName}>{course.title}</p>
               <p>{course.totalDistance} km</p>
               {/* ❤️ {course.likes} */}
               {/* <p>{course.description || "설명이 없습니다."}</p> */}
