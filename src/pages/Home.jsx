@@ -46,7 +46,7 @@ const Home = () => {
 
     const fetchPopularCourses = async () => {
       try {
-        const res = await fetch("http://localhost:8080/stats/popular-courses");
+        const res = await authFetch("http://localhost:8080/stats/popular-courses");
         const data = await res.json();
         setPopularCourses(data);
       } catch (err) {

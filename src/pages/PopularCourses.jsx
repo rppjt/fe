@@ -1,8 +1,8 @@
-// src/pages/PopularCourses.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./popularCourses.module.css";
 import { useAuthFetch } from "../utils/useAuthFetch";
+import { useAuth } from "../contexts/AuthContext"; // ✅ 추가
 
 const PopularCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -10,8 +10,11 @@ const PopularCourses = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const authFetch = useAuthFetch();
+  const { isAuthReady } = useAuth(); // ✅ 추가
 
   useEffect(() => {
+    if (!isAuthReady) return; // ✅ 토큰 로딩이 완료될 때까지 대기
+
     const fetchPopularCourses = async () => {
       try {
         const res = await authFetch("http://localhost:8080/stats/popular-courses");
@@ -26,7 +29,7 @@ const PopularCourses = () => {
     };
 
     fetchPopularCourses();
-  }, []);
+  }, [isAuthReady]); // ✅ isAuthReady 의존성 추가
 
   if (loading) return <p>로딩 중...</p>;
   if (error) return <p>❌ {error}</p>;
