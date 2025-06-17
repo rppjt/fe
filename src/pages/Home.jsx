@@ -14,6 +14,7 @@ const Home = () => {
   const navigate = useNavigate();
   const authFetch = useAuthFetch();
   const { accessToken } = useAuth();
+  const [popularCourses, setPopularCourses] = useState([]);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -30,10 +31,6 @@ const Home = () => {
 
     const fetchRecommendations = async () => {
       try {
-        /*const pos = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
-        });
-        const { latitude, longitude } = pos.coords;*/
 
         const res = await authFetch(
           `http://localhost:8080/course?sortType=LIKE`
@@ -47,14 +44,25 @@ const Home = () => {
       }
     };
 
+    const fetchPopularCourses = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/stats/popular-courses");
+        const data = await res.json();
+        setPopularCourses(data);
+      } catch (err) {
+        console.error("인기 코스 불러오기 실패:", err);
+      }
+    };
+
     fetchUser();
     fetchRecommendations();
+    fetchPopularCourses();
   }, [accessToken]);
 
   useEffect(() => {
     if (localStorage.getItem("unsavedRun")) {
       setShowRecoveryPrompt(true);
-    }
+    } 
   }, []);
 
   const handleRecover = () => {
@@ -68,6 +76,10 @@ const Home = () => {
 
   const handleClickCourse = (id) => {
     navigate(`/course/${id}`);
+  };
+
+  const handleClickStats = (id) => {
+    navigate(`/course-stats/${id}`);
   };
 
   if (!user) return <div>사용자 정보를 불러오는 중...</div>;
@@ -129,6 +141,26 @@ const Home = () => {
           >
             ➕ 더보기
           </button>
+        </div>
+      </div>
+      <div className={styles.popularBox}>
+        <h2>🔥 인기 추천 코스</h2>
+        <div className={styles.popularGrid}>
+          {popularCourses.slice(0, 10).map((course) => (
+            <div
+              key={course.courseId}
+              className={styles.popularCard}
+              onClick={() => handleClickStats(course.courseId)}
+            >
+              <p className={styles.popularTitle}>{course.courseTitle}</p>
+              <p className={styles.popularInfo}>
+                📏 {course.distanceKm}km | 👥 {course.uniqueRunnerCount}명
+              </p>
+              <p className={styles.popularStats}>
+                🔥 {course.totalCompletionCount}회 | ⏱ {course.averagePace}분/km
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
