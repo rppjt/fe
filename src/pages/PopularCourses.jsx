@@ -2,17 +2,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./popularCourses.module.css";
+import { useAuthFetch } from "../utils/useAuthFetch";
 
 const PopularCourses = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     const fetchPopularCourses = async () => {
       try {
-        const res = await fetch("http://localhost:8080/stats/popular-courses");
+        const res = await authFetch("http://localhost:8080/stats/popular-courses");
         if (!res.ok) throw new Error("인기 코스 조회 실패");
         const data = await res.json();
         setCourses(data);
